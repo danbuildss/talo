@@ -1,0 +1,71 @@
+{
+  "format": "talo.candidates.v1",
+  "candidates": [
+    {
+      "company_name": "Northwind Agents (fictional)",
+      "domain": "https://www.northwind.example/partners",
+      "industry": "AI agent SDK",
+      "partnership_type": "integration",
+      "sources": [
+        {
+          "url": "https://northwind.example/integrations",
+          "title": "Northwind integrations directory (fictional)",
+          "published_at": null,
+          "accessed_at": "2026-11-10",
+          "summary": "Lists 12 tool partners and invites new integrations through a public form.",
+          "claim_type": "verified",
+          "supports": ["alignment", "readiness", "feasibility"]
+        },
+        {
+          "url": "https://docs.northwind.example/roadmap",
+          "title": "Northwind developer roadmap (fictional)",
+          "published_at": "2026-10-01",
+          "accessed_at": "2026-11-10",
+          "summary": "Roadmap mentions more third-party tooling next year.",
+          "claim_type": "inference",
+          "supports": ["mutual_value"]
+        }
+      ],
+      "research_timestamp": "2026-11-10T14:00:00Z",
+      "evidence_summary": "Public integrations directory and an open partner form; roadmap suggests appetite for more tooling.",
+      "scores": {
+        "alignment": { "score": 4, "reason": "Both products are used by developers building AI agents." },
+        "mutual_value": {
+          "score": 4,
+          "reason": "Each side reaches the other's developer base; fills a gap their users ask about."
+        },
+        "readiness": { "score": 3, "reason": "Has an integrations directory but no named partner programme." },
+        "contact_access": { "score": 3, "reason": "Public partner form; no named partnerships lead found yet." },
+        "feasibility": { "score": 4, "reason": "An integration needs little work on their core product." }
+      },
+      "mutual_benefits": {
+        "for_client": "Listed in their integrations directory and in front of their developers.",
+        "for_partner": "Fills a gap their users ask about, with no build work on their core."
+      },
+      "proposed_collaboration": "Native integration plus a joint how-to guide.",
+      "risks": ["No named partnerships lead yet", "Roadmap claim is an inference"],
+      "recommended_next_action": "Find who leads partnerships, then submit the partner form with a short integration outline.",
+      "pipeline_stage": "researched",
+      "is_sample": true
+    },
+    {
+      "company_name": "Lumen Ledger (fictional)",
+      "domain": "lumenledger.example",
+      "industry": "Web3 wallet",
+      "partnership_type": "distribution",
+      "sources": [],
+      "research_timestamp": "2026-11-11T09:30:00Z",
+      "evidence_summary": "Early lead; nothing verified yet.",
+      "scores": {
+        "alignment": { "score": 3, "reason": "Similar audience, but this is not yet backed by a source." }
+      },
+      "mutual_benefits": {
+        "for_client": "Possible reach into wallet users.",
+        "for_partner": "Unclear until researched."
+      },
+      "risks": [],
+      "recommended_next_action": "Research before scoring the remaining factors.",
+      "is_sample": true
+    }
+  ]
+}

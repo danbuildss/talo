@@ -35,8 +35,10 @@ If the notes file is missing, ask before assuming anything.
 - Talk to Dan in plain language: what changed, what Dan needs to do.
 
 ## Dev
-Filled in when the app is set up (Phase 3a in `PLAN.md`).
+Node 22+. The app itself (Cloudflare Worker) arrives in Phase 3a.
 - Install: `npm install`
-- Test: `npm test`
-- Run locally: `npm run dev`
-- Deploy: Cloudflare Workers via `npm run deploy` (Dan runs it, or it runs from GitHub once connected); production URL: TBD
+- Everything before a PR: `npm run check` (lint, typecheck, tests)
+- Tests only: `npm test`
+- Fix formatting: `npm run format`
+- Regenerate the research-file JSON Schema after changing `shared/candidate.ts`: `npm run schema`
+- Run locally / deploy: from Phase 3a (Cloudflare Workers); production URL: TBD
