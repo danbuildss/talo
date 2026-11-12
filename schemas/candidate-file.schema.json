@@ -1,0 +1,317 @@
+{
+  "$id": "https://github.com/danbuildss/talo/schemas/candidate-file.schema.json",
+  "title": "Talo research file (talo.candidates.v1)",
+  "description": "Candidates produced by the Partnership Scout and Partnership Strategist skills. overall_score, evidence_confidence and verification_status are calculated by Talo and must not be included.",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "string",
+      "const": "talo.candidates.v1"
+    },
+    "candidates": {
+      "minItems": 1,
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "company_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "domain": {
+            "type": "string"
+          },
+          "industry": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "partnership_type": {
+            "type": "string",
+            "enum": [
+              "integration",
+              "distribution",
+              "ecosystem",
+              "channel",
+              "creator"
+            ]
+          },
+          "sources": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                },
+                "published_at": {
+                  "default": null,
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "accessed_at": {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                },
+                "summary": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                },
+                "claim_type": {
+                  "type": "string",
+                  "enum": [
+                    "verified",
+                    "inference"
+                  ]
+                },
+                "supports": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "alignment",
+                      "mutual_value",
+                      "readiness",
+                      "contact_access",
+                      "feasibility"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "url",
+                "title",
+                "accessed_at",
+                "summary",
+                "claim_type"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "research_timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "evidence_summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "scores": {
+            "type": "object",
+            "properties": {
+              "alignment": {
+                "type": "object",
+                "properties": {
+                  "score": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "score",
+                  "reason"
+                ],
+                "additionalProperties": false
+              },
+              "mutual_value": {
+                "type": "object",
+                "properties": {
+                  "score": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "score",
+                  "reason"
+                ],
+                "additionalProperties": false
+              },
+              "readiness": {
+                "type": "object",
+                "properties": {
+                  "score": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "score",
+                  "reason"
+                ],
+                "additionalProperties": false
+              },
+              "contact_access": {
+                "type": "object",
+                "properties": {
+                  "score": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "score",
+                  "reason"
+                ],
+                "additionalProperties": false
+              },
+              "feasibility": {
+                "type": "object",
+                "properties": {
+                  "score": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "score",
+                  "reason"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "mutual_benefits": {
+            "type": "object",
+            "properties": {
+              "for_client": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              "for_partner": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "for_client",
+              "for_partner"
+            ],
+            "additionalProperties": false
+          },
+          "proposed_collaboration": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "risks": {
+            "default": [],
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "recommended_next_action": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "pipeline_stage": {
+            "default": "discovered",
+            "type": "string",
+            "enum": [
+              "discovered",
+              "researched",
+              "qualified",
+              "outreach_prepared",
+              "contacted",
+              "replied",
+              "in_discussion",
+              "proposal",
+              "partnered",
+              "not_a_fit",
+              "declined",
+              "on_hold",
+              "archived"
+            ]
+          },
+          "is_sample": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "company_name",
+          "domain",
+          "industry",
+          "partnership_type",
+          "sources",
+          "research_timestamp",
+          "evidence_summary",
+          "scores",
+          "mutual_benefits",
+          "recommended_next_action"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "format",
+    "candidates"
+  ],
+  "additionalProperties": false
+}

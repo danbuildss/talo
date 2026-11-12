@@ -1,0 +1,143 @@
+{
+  "$id": "https://github.com/danbuildss/talo/schemas/outreach-file.schema.json",
+  "title": "Talo outreach drafts (talo.outreach.v1)",
+  "description": "Drafts produced by the Outreach Specialist skill. Drafts only: approval_status is always draft; a person approves and sends.",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "string",
+      "const": "talo.outreach.v1"
+    },
+    "drafts": {
+      "minItems": 1,
+      "maxItems": 200,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "candidate_domain": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "email",
+              "x_dm",
+              "telegram",
+              "linkedin",
+              "github",
+              "proposal"
+            ]
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "opener",
+              "alternative",
+              "follow_up",
+              "proposal"
+            ]
+          },
+          "recipient": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "public_channel": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "source_url": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 6000
+          },
+          "personalization_sources": {
+            "default": [],
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "approval_status": {
+            "default": "draft",
+            "type": "string",
+            "const": "draft"
+          }
+        },
+        "required": [
+          "candidate_domain",
+          "channel",
+          "purpose",
+          "message"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "suggested_stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "candidate_domain": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "discovered",
+              "researched",
+              "qualified",
+              "outreach_prepared",
+              "contacted",
+              "replied",
+              "in_discussion",
+              "proposal",
+              "partnered",
+              "not_a_fit",
+              "declined",
+              "on_hold",
+              "archived"
+            ]
+          }
+        },
+        "required": [
+          "candidate_domain",
+          "stage"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "is_sample": {
+      "default": false,
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "format",
+    "drafts"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,29 @@
+{
+  "name": "talo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Talo: partnership intelligence, built by Somehow Internet.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check",
+    "format": "biome check --write",
+    "schema": "tsx scripts/generate-schema.ts",
+    "check": "npm run lint && npm run typecheck && npm test",
+    "check:research": "tsx scripts/check-research.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.7",
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
