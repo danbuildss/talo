@@ -82,6 +82,20 @@ describe("checkResearch", () => {
     expect(report.lines.join("\n")).toMatch(/Partnership readiness has no score yet/);
   });
 
+  it("lists rejected candidates last, with their reason instead of Needs verification", () => {
+    const rejected = {
+      ...candidates,
+      candidates: [
+        { ...candidates.candidates[1], pipeline_stage: "not_a_fit", evidence_summary: "Direct competitor." },
+        candidates.candidates[0],
+      ],
+    };
+    const report = checkResearch(rejected, NOW);
+    expect(report.lines[1]).toMatch(/Northwind/);
+    expect(report.lines[2]).toMatch(/rejected: Direct competitor\./);
+    expect(report.lines.join("\n")).not.toMatch(/no score yet/);
+  });
+
   it("summarises outreach drafts", () => {
     const report = checkResearch(outreach, NOW);
     expect(report.ok).toBe(true);

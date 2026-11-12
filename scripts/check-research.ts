@@ -70,8 +70,15 @@ export function checkResearch(input: unknown, now: Date = new Date()): Report {
     const lines = [`Candidates: ${result.candidates.length}`];
     const rows = result.candidates
       .map((c) => ({ c, e: evaluate(c, now) }))
-      .sort((a, b) => (b.e.overall_score ?? -1) - (a.e.overall_score ?? -1));
+      .sort((a, b) => {
+        const rejected = Number(a.c.pipeline_stage === "not_a_fit") - Number(b.c.pipeline_stage === "not_a_fit");
+        return rejected || (b.e.overall_score ?? -1) - (a.e.overall_score ?? -1);
+      });
     for (const { c, e } of rows) {
+      if (c.pipeline_stage === "not_a_fit") {
+        lines.push(`    ✗  ${c.company_name} (${c.domain}) · rejected: ${c.evidence_summary}`);
+        continue;
+      }
       const score = (e.overall_score === null ? "—" : String(e.overall_score)).padStart(3);
       lines.push(
         `  ${score}  ${c.company_name} (${c.domain}) · ${c.pipeline_stage} · evidence ${e.evidence_confidence} · ${STATUS_LABEL[e.verification_status]}`,
