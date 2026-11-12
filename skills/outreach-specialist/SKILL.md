@@ -13,7 +13,7 @@ Follow `docs/RESEARCH-METHODOLOGY.md` and the voice in `brand/BRAND.md`. Drafts 
 
 - The client profile (`private/<client>/company.json`).
 - The scored candidates (`private/<client>/candidates.json`). Draft only for `qualified` candidates.
-- The channel to use (email, X DM, Telegram, LinkedIn) if known; otherwise suggest the best public channel found.
+- The channel to use (email, X DM, Telegram, LinkedIn, or GitHub for open-source projects that take pull requests or issues) if known; otherwise suggest the best public channel found.
 
 ## For each shortlisted candidate, write
 

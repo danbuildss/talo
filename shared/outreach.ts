@@ -6,7 +6,7 @@
 import { z } from "zod";
 import { domainSchema, httpUrl, PIPELINE_STAGES } from "./candidate.ts";
 
-export const CHANNELS = ["email", "x_dm", "telegram", "linkedin", "proposal"] as const;
+export const CHANNELS = ["email", "x_dm", "telegram", "linkedin", "github", "proposal"] as const;
 export type Channel = (typeof CHANNELS)[number];
 
 export const PURPOSES = ["opener", "alternative", "follow_up", "proposal"] as const;

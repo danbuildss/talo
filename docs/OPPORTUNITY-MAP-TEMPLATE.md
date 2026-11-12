@@ -12,7 +12,9 @@ Prepared by Talo, built by Somehow Internet · [date] · [Pilot / Snapshot / Opp
 > A score shows research-based fit. It is not a promise of a reply or a partnership.
 
 ## 1. Your company, as a partner sees it
-[3–5 sentences: what you do, who for, what makes you attractive to partners, what might put them off.]
+[3–5 sentences: what you do, who for, what makes you attractive to partners.]
+
+**What partners will ask first:** [the objections that apply to every candidate, e.g. how supply is sourced, a token, unverified numbers. Lead with these.]
 Open questions for you: [list]
 
 ## 2. Summary

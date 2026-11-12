@@ -20,6 +20,8 @@ How Talo research is done, so that every recommendation can be checked by someon
 
 Record every source with: link (http or https only), title, publication date if known, the date we accessed it, and a one-line summary of what it shows.
 
+If a page could only be read through a search excerpt (not opened directly), say so in the brief. A person opens every link once before anything is sent to the client or a partner.
+
 ## 2. Verified vs inference
 
 Each source is tagged:
