@@ -1,0 +1,4 @@
+# Copy to .dev.vars for local development (.dev.vars is git-ignored).
+# The development shortcut only works on localhost with ENVIRONMENT=development.
+ENVIRONMENT=development
+DEV_ADMIN_EMAIL=you@example.com
