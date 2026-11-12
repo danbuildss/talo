@@ -1,6 +1,6 @@
 # Talo — how we work
 
-Talo (shown as **talo.**) is a partnership intelligence tool: it helps early-stage AI, Web3 and developer-infrastructure companies find the right partners, understand what each side gains, prepare a credible approach and track the relationship. It is built by Somehow Business, part of Somehow Internet. Owner: Dan.
+Talo (shown as **talo.**) is a partnership intelligence tool: it helps early-stage AI, Web3 and developer-infrastructure companies find the right partners, understand what each side gains, prepare a credible approach and track the relationship. Built by Somehow Internet. Owner: Dan. The repo is public.
 
 ## Read first, every session
 1. This file: how we work.
@@ -11,6 +11,7 @@ If the notes file is missing, ask before assuming anything.
 
 ## The loop
 - Sketch first, then wait for approval, then build. Never build before "approve".
+- Back end first: the API and data are built and tested before screens, and screens before polish.
 - One PR per change, with a plain description. Dan merges.
 - Before every PR: tests, lint, typecheck, production build. UI checked at phone and desktop width.
 - After a merge: check production and report what works.
@@ -27,14 +28,14 @@ If the notes file is missing, ask before assuming anything.
 - Don't show a button or page as working unless the backend behind it works. Unfinished features are hidden or labelled.
 - Client data stays in its workspace. Never send confidential client information to an outside AI service without permission.
 - Test and demo data is clearly labelled as such.
-- Drafts, briefs, client research and launch material stay out of git (`.git/info/exclude`).
+- The repo is public. Client names, client research, Opportunity Maps, drafts, pricing and launch material stay out of git (`.git/info/exclude`). Sample data is fictional and labelled.
 - No secrets in chat, code, commits or logs. Keys go in the Cloudflare dashboard or `.dev.vars` (git-ignored).
 - No model names in commits or PRs.
 - Dan posts everything and does all outreach. Claude drafts.
 - Talk to Dan in plain language: what changed, what Dan needs to do.
 
 ## Dev
-Filled in when the app is set up (Phase 3 in `PLAN.md`).
+Filled in when the app is set up (Phase 3a in `PLAN.md`).
 - Install: `npm install`
 - Test: `npm test`
 - Run locally: `npm run dev`

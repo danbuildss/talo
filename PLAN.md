@@ -26,7 +26,7 @@ Early-stage AI, Web3, API, agent-infrastructure and developer-tool companies tha
 V1 focuses on two partnership types: **product and technology integrations** and **distribution and co-marketing**. Ecosystem, channel/referral and creator partnerships exist as categories but get no special features yet.
 
 ### How it's sold (V1)
-Service first, software second. Somehow Business delivers the work, and Talo is the internal tool used to deliver it.
+Service first, software second. Somehow Internet delivers the work as a service, and Talo is the internal tool used to deliver it.
 - **Partnership Snapshot** (free sample): company analysis plus 3 candidates with a short rationale.
 - **Opportunity Map** (paid): 8–10 evidence-backed candidates, fit analysis, mutual value, strategy and suggested outreach.
 - **30-Day Partnership Sprint** (paid, managed): the Map plus outreach preparation, tracking and outcome reporting.
@@ -35,14 +35,14 @@ Service first, software second. Somehow Business delivers the work, and Talo is 
 Pricing isn't set until we've done customer interviews and measured what a report costs to deliver.
 
 ### Brand structure
-Wordmark **talo.** · descriptor *Partnership Intelligence* · endorsement *by Somehow Internet*. Hierarchy: Somehow Internet → Somehow Business → Talo. Contracts sit with whichever registered entity Dan names; the brand isn't assumed to be a legal company.
+Wordmark **talo.** · descriptor *Partnership Intelligence* · credit line *built by Somehow Internet*. Public copy names Somehow Internet only. Contracts sit with whichever registered entity Dan names; the brand isn't assumed to be a legal company.
 
 ### What Talo is not (V1)
 Not a general AI assistant · not bulk lead generation or email harvesting · not an X DM bot or any auto-sender · not a CRM replacement · not an enterprise PRM suite · not a marketplace · not an always-on agent swarm · not a self-service subscription · not a GTMQuant clone (we can study its workflow, never copy its design, art or copy).
 
 ---
 
-## 2. MVP scope (the private app, Phase 3)
+## 2. MVP scope (the private app, Phase 3a–3c)
 
 ### In
 | # | Feature | Done when |
@@ -80,7 +80,7 @@ Small, boring, free. One deployable. Few dependencies. Server decides everything
 | Database | Cloudflare D1 (SQLite), versioned SQL migrations via Wrangler | Free tier, no separate host. |
 | Access | Cloudflare Access (Zero Trust) in front of the app **and** the Worker verifies the Access token on every API request | Free tier covers a small number of users (to be confirmed against current terms). The double check means a misconfigured dashboard rule doesn't expose data. |
 | Tests | Vitest; Worker tests run in the Workers runtime (`@cloudflare/vitest-pool-workers`); one Playwright check per main screen at phone and desktop width | Tests run against real D1 behaviour locally. |
-| Code | GitHub repo `danbuildss/talo` | Dan merges every PR. |
+| Code | Public GitHub repo `danbuildss/talo` | Dan merges every PR. See "Public repo rules" below. |
 
 Free-tier limits (requests, D1 size, Access seats) are checked against Cloudflare's current terms before Phase 3 starts and recorded in `docs/DECISIONS.md`.
 
@@ -103,6 +103,12 @@ talo/
 └── tests/
 ```
 `PLAN.md` replaces the blueprint's separate PRODUCT / ARCHITECTURE / ROADMAP docs so there's one source of truth.
+
+### Public repo rules
+The repo is public. That decides what goes in git:
+- **In git:** code, research skills, schemas, the research method, brand, docs, and sample data that is clearly labelled as fictional.
+- **Never in git:** client names, client research, Opportunity Maps, outreach drafts, pricing, the original blueprint, launch material and `talo-notes.md`. These live in `.git/info/exclude`d files or `private/` locally, and real client data lives only in D1 behind login.
+- Because the skills are public, anyone can copy the method. Talo's edge is the quality of the research and the service around it.
 
 ### The AI line (important)
 Building Talo with Claude doesn't give the deployed app a free AI. In Phases 1–4: people collect sources, Claude helps analyse them in a chat session using the skills, the structured result is imported, and Talo stores, scores, displays and tracks it. Live AI inside the app is a separate, paid decision (Phase 5).
@@ -193,7 +199,7 @@ Candidate record (minimum): candidate_id, workspace_id, company_name, domain, in
 
 ## 7. Security and privacy plan
 
-- Repo private (to confirm). No secrets in code; `.dev.vars` and `.wrangler/` git-ignored.
+- Repo is public, so nothing confidential is committed (see §3 "Public repo rules"). No secrets in code; `.dev.vars` and `.wrangler/` git-ignored.
 - Cloudflare Access protects the whole app; the Worker also verifies the Access JWT (signature, audience, issuer) on every `/api` request and checks the email against an admin allowlist. Fails closed.
 - Every database query is parameterized and scoped by `workspace_id`; a test proves one workspace can't read another's data.
 - All input validated with Zod on the server. React escapes output; no raw HTML from imported data; source links open with `rel="noopener noreferrer"` and only `http(s)` URLs are accepted.
@@ -222,27 +228,38 @@ Dan recruits 1–3 suitable companies. Free or reduced diagnostic, aiming for a 
 Claude prepares intake forms, briefs and DM drafts; Dan does all outreach.
 **Done when:** a customer pays, or we have concrete evidence of why they won't.
 
-### Phase 3 — Private MVP (weeks 3–5, shaped by Phase 2)
-Features M1–M11 (§2), deployed on Cloudflare free tier, as a series of small PRs:
-1. Project skeleton (Vite + Worker + Tailwind + tests + CI build) with a placeholder page.
+### Phase 3 — Private MVP (weeks 3–5, shaped by Phase 2) — back end first
+Features M1–M11 (§2), deployed on Cloudflare free tier. The back end is built and proven before any screens, then plain screens, then polish. One small PR per step.
+
+**3a. Back end** (proven by automated tests and sample outputs, no screens)
+1. Project skeleton: Worker, TypeScript, lint, typecheck, tests, build.
 2. D1 migrations + typed data access + workspace-isolation test.
-3. Access protection + server-side JWT check.
-4. Company profile.
-5. Shared schemas + scoring formula + tests.
-6. Candidate import with validation and duplicate detection.
-7. Candidate list (search/filter) and detail.
-8. Outreach drafts.
-9. Pipeline and follow-ups.
-10. Export and printable Opportunity Map.
-11. Mobile, empty/error states, sample-data labels, final audit.
-**Done when:** Dan can deliver an Opportunity Map from Talo without spreadsheets, and every item in §2 passes on production.
+3. Access protection + server-side JWT check (M1).
+4. Shared schemas + scoring formula + tests (M7).
+5. Company profile API (M2).
+6. Candidate import with validation and duplicate detection (M3, M4).
+7. Candidates API: list, search, filter, detail, edit (M5, M6).
+8. Outreach drafts API (M8).
+9. Pipeline API and follow-ups (M9).
+10. Export: JSON, CSV (M10).
+**Done when:** every back-end feature passes its tests locally and on the deployed Worker, and a sample Opportunity Map can be imported, scored, edited and exported through the API.
+
+**3b. Plain screens** (React + Tailwind, unstyled but working, on the finished API)
+Company profile · candidate list and detail · drafts · pipeline · import and export · printable Opportunity Map.
+**Done when:** Dan can deliver an Opportunity Map from Talo without spreadsheets.
+
+**3c. Polish**
+Brand look from `brand/BRAND.md`, phone layout, empty/loading/error states, sample-data labels, final security audit (M11).
+**Done when:** every item in §2 passes on production, on phone and desktop.
 
 ### Phase 4 — Commercial pilot (weeks 5–8)
 Deliver paid work through Talo; improve from real use. Track time saved, acceptance rate, qualified conversations, conversion, delivery cost, satisfaction, repeat intent.
 **Done when:** evidence that the workflow creates repeatable value.
 
 ### Phase 5 — Controlled automation (only after demand)
-Candidates: metered AI research, permitted search APIs, monitoring, signal alerts, evidence freshness checks, Telegram notifications, optional Grok/X signal agent (public signal → verify → match → score → human review → pipeline). Each needs spending caps, per-workspace limits, audit records, human approval. Never automated unsolicited outreach.
+Candidates: metered AI research, permitted search APIs, monitoring, "why now" signal alerts, evidence freshness checks, Telegram notifications, optional Grok/X signal agent (public signal → verify → match → score → human review → pipeline).
+
+**X "warm paths" (idea, not committed):** a user connects their X account; Talo reads only who they follow (not followers), matches that against their candidate list and stores only the matches, e.g. "you already follow this partner's founder". X's API is pay-per-use, so this needs a cost check under §9 first. Only the official X API; no unofficial resellers. Until then, warm paths are gathered by hand in client intake. Each needs spending caps, per-workspace limits, audit records, human approval. Never automated unsolicited outreach.
 **Done when:** automation saves work without making recommendations less trustworthy or costs uncontrolled.
 
 ### Phase 6 — Self-service SaaS (only when the economics justify it)
@@ -278,11 +295,11 @@ After pilots: cost per research run · hours per brief · verification rate · a
 - **Trust:** one invented fact in a client brief damages credibility. The evidence standard and "Needs verification" rule are the safeguard.
 
 ### Needs Dan's decision or action
-1. **Approve** this plan and `CLAUDE.md`.
-2. **Repo visibility:** the blueprint says private. Is `danbuildss/talo` private? This affects what can go in git (pricing strategy, client names).
-3. **Phase 1 test company:** which real company do we research first? (Somehow Business itself, a company you know, or a willing prospect.)
-4. **Order of work:** the blueprint's day plan starts the app skeleton on days 6–7, before Client Zero. My recommendation: do Phase 3 PRs 1–3 (skeleton, database, access) early since they're cheap and don't depend on what we learn, then hold the feature PRs until Phase 2 feedback.
-5. **Landing page:** a simple page with a pilot-request form could help Phase 2 recruitment, but a form stores personal data and implies a public brand before the name is cleared. Recommendation: no public page until the name check is done; use a Google Form or direct DMs for Phase 2.
-6. **Cloudflare account:** Dan creates/owns it; Claude never gets the credentials. Needed by Phase 3.
-7. **Legal entity** for contracts and invoices in Phase 2.
-8. **Trademark jurisdictions** to check.
+1. **Phase 1 test company:** which real company do we research first? (Somehow Internet itself, a company Dan knows, or a willing prospect.)
+2. **Landing page:** recommendation is no public page until the name check is done; use a Google Form or direct DMs for Phase 2.
+3. **Cloudflare account:** Dan creates and owns it; Claude never gets the credentials. Needed by Phase 3a step 3.
+4. **Legal entity** for contracts and invoices in Phase 2.
+5. **Trademark jurisdictions** to check.
+
+### Decided
+- 2026-11-12: Plan approved. Repo is public. Credit line "built by Somehow Internet". Back end first (3a → 3b → 3c). X warm paths parked in Phase 5. (Dan)
