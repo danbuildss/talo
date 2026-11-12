@@ -1,0 +1,42 @@
+{
+  "format": "talo.company.v1",
+  "company_name": "Acme Agents (fictional)",
+  "domain": "acme-agents.example",
+  "one_liner": "Hosted memory for AI agents (fictional sample).",
+  "summary": "Acme Agents gives developers a hosted memory API so their AI agents remember users across sessions.",
+  "sector": "AI developer infrastructure",
+  "stage": "Live product, early revenue (inference)",
+  "target_users": ["Developers building AI agents", "Small AI product teams"],
+  "capabilities": ["Memory API", "TypeScript and Python SDKs"],
+  "existing_partners": [
+    {
+      "name": "Northwind Agents (fictional)",
+      "domain": "northwind.example",
+      "source_url": "https://acme-agents.example/integrations"
+    }
+  ],
+  "competitors": [{ "name": "Other Memory Co (fictional)", "domain": "othermemory.example" }],
+  "partnership_goals": ["integration", "distribution"],
+  "partner_types_wanted": ["Agent frameworks", "Developer communities"],
+  "partner_types_excluded": ["Direct competitors"],
+  "geographies": ["Global, English-speaking first"],
+  "strengths": ["Simple API", "Free tier for developers"],
+  "limitations": ["Small team", "No enterprise features yet"],
+  "claims": [
+    {
+      "statement": "Offers TypeScript and Python SDKs.",
+      "claim_type": "verified",
+      "url": "https://acme-agents.example/docs",
+      "accessed_at": "2026-11-10"
+    },
+    {
+      "statement": "Appears to have early paying customers, based on a pricing page with paid plans.",
+      "claim_type": "inference",
+      "url": "https://acme-agents.example/pricing",
+      "accessed_at": "2026-11-10"
+    }
+  ],
+  "open_questions": ["Which partnership type matters most this quarter?", "Any partners to avoid?"],
+  "researched_at": "2026-11-10T12:00:00Z",
+  "is_sample": true
+}

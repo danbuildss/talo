@@ -1,7 +1,7 @@
 {
   "$id": "https://github.com/danbuildss/talo/schemas/candidate-file.schema.json",
   "title": "Talo research file (talo.candidates.v1)",
-  "description": "Candidates produced by Talo research. overall_score, evidence_confidence and verification_status are calculated by Talo and must not be included.",
+  "description": "Candidates produced by the Partnership Scout and Partnership Strategist skills. overall_score, evidence_confidence and verification_status are calculated by Talo and must not be included.",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {

@@ -1,0 +1,23 @@
+{
+  "format": "talo.outreach.v1",
+  "drafts": [
+    {
+      "candidate_domain": "northwind.example",
+      "channel": "x_dm",
+      "purpose": "opener",
+      "recipient": { "public_channel": "Northwind partner form" },
+      "message": "Hi Northwind team, I'm with Acme Agents (fictional). Your integrations page lists 12 tool partners and invites new ones. Our memory API is used by agent builders, a lot like yours. A native integration plus a short joint guide could help both sets of users. Open to a 20-minute call to see if it fits?",
+      "personalization_sources": ["https://northwind.example/integrations"]
+    },
+    {
+      "candidate_domain": "northwind.example",
+      "channel": "email",
+      "purpose": "follow_up",
+      "subject": "Acme x Northwind integration",
+      "message": "Following up on my note about an Acme memory integration for Northwind users. Happy to send a one-page outline first if that's easier.",
+      "personalization_sources": []
+    }
+  ],
+  "suggested_stages": [{ "candidate_domain": "northwind.example", "stage": "outreach_prepared" }],
+  "is_sample": true
+}

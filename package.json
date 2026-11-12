@@ -10,7 +10,8 @@
     "lint": "biome check",
     "format": "biome check --write",
     "schema": "tsx scripts/generate-schema.ts",
-    "check": "npm run lint && npm run typecheck && npm test"
+    "check": "npm run lint && npm run typecheck && npm test",
+    "check:research": "tsx scripts/check-research.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.7",

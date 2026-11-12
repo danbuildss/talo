@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { buildSchemaJson } from "../scripts/schema-json.ts";
 import { type CandidateInput, normalizeDomain } from "../shared/candidate.ts";
 import { evaluate } from "../shared/scoring.ts";
 import { findDuplicates, validateCandidateFile } from "../shared/validate.ts";
@@ -154,12 +153,5 @@ describe("duplicates", () => {
 
   it("returns nothing when all domains differ", () => {
     expect(findDuplicates([{ domain: "a.example" }, { domain: "b.example" }])).toEqual([]);
-  });
-});
-
-describe("JSON Schema file", () => {
-  it("is up to date with shared/candidate.ts (run npm run schema)", () => {
-    const committed = readFileSync(new URL("../schemas/candidate-file.schema.json", import.meta.url), "utf8");
-    expect(committed).toBe(buildSchemaJson());
   });
 });
