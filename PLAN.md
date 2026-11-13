@@ -79,7 +79,7 @@ Small, boring, free. One deployable. Few dependencies. Server decides everything
 | Routing / validation | Hono (tiny router) + Zod (input validation) | Both are small, typed and standard on Workers. Shared Zod schemas validate imports on both sides. |
 | Database | Cloudflare D1 (SQLite), versioned SQL migrations via Wrangler | Free tier, no separate host. |
 | Access | Cloudflare Access (Zero Trust) in front of the app **and** the Worker verifies the Access token on every API request | Free tier covers a small number of users (to be confirmed against current terms). The double check means a misconfigured dashboard rule doesn't expose data. |
-| Tests | Vitest; Worker tests run in the Workers runtime (`@cloudflare/vitest-pool-workers`); one Playwright check per main screen at phone and desktop width | Tests run against real D1 behaviour locally. |
+| Tests | Vitest; Worker tests run in the Workers runtime (`@cloudflare/vitest-plugin`); one Playwright check per main screen at phone and desktop width | Tests run against real D1 behaviour locally. |
 | Code | Public GitHub repo `danbuildss/talo` | Dan merges every PR. See "Public repo rules" below. |
 
 Free-tier limits (requests, D1 size, Access seats) are checked against Cloudflare's current terms before Phase 3 starts and recorded in `docs/DECISIONS.md`.

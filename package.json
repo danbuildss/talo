@@ -6,21 +6,31 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p worker/tsconfig.json",
     "lint": "biome check",
     "format": "biome check --write",
     "schema": "tsx scripts/generate-schema.ts",
-    "check": "npm run lint && npm run typecheck && npm test",
-    "check:research": "tsx scripts/check-research.ts"
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "check:research": "tsx scripts/check-research.ts",
+    "dev": "wrangler dev",
+    "db:migrate:local": "wrangler d1 migrations apply talo --local",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "deploy": "wrangler d1 migrations apply talo --remote && wrangler deploy"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.7",
+    "@cloudflare/vitest-plugin": "^1.8.1",
+    "@cloudflare/workers-types": "^5.20261112.1",
     "@types/node": "^26.6.6",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "vitest": "^5.1.0"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0",
+    "wrangler": "^4.161.0"
   },
   "dependencies": {
+    "hono": "^4.13.18",
+    "jose": "^6.2.17",
     "zod": "^4.6.7"
   },
   "engines": {

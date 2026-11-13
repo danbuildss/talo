@@ -1,0 +1,23 @@
+// Cloudflare Worker config for Talo. Free tier only.
+// Secrets and per-deployment values (ACCESS_TEAM_DOMAIN, ACCESS_AUD, ADMIN_EMAILS)
+// are set in the Cloudflare dashboard, or in .dev.vars locally (git-ignored).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "talo",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-08-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "talo",
+      // Replaced with the real ID once Dan creates the D1 database (Phase 3a, access step).
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "production"
+  }
+}
