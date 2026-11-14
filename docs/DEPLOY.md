@@ -28,6 +28,17 @@ Dan does these steps in the Cloudflare dashboard. Claude never needs the account
 
 If sign-in isn't configured yet, the API answers "Sign-in is not configured yet" (503) and returns no data. It fails closed.
 
+## Curating data in production
+
+Reviews happen through the admin API (screens come later). From a computer with the repo:
+
+1. Install Cloudflare's `cloudflared` tool and log in once: `cloudflared access login https://talo.<your-subdomain>.workers.dev`
+2. Get a short-lived token from your own login: `export TALO_ACCESS_TOKEN=$(cloudflared access token -app=https://talo.<your-subdomain>.workers.dev)`
+3. Point the scripts at production: `export TALO_URL=https://talo.<your-subdomain>.workers.dev`
+4. `npm run registry:import -- file.json --dry-run`, then without `--dry-run`; `npm run data:audit`.
+
+The token is yours and expires; never paste it into chat or commit it. The audit is also readable in a browser at `/api/admin/audit` after logging in.
+
 ## Backups
 
 - `npx wrangler d1 export talo --remote --output backup-YYYY-MM-DD.sql` (keep the file private; never commit it).

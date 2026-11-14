@@ -2,6 +2,7 @@ import { z } from "zod";
 import { candidateFileSchema } from "../shared/candidate.ts";
 import { companyProfileSchema } from "../shared/company.ts";
 import { outreachFileSchema } from "../shared/outreach.ts";
+import { registryFileSchema } from "../shared/registry-file.ts";
 
 const BASE = "https://github.com/danbuildss/talo/schemas";
 
@@ -16,6 +17,12 @@ const SCHEMAS = {
     schema: companyProfileSchema,
     title: "Talo company profile (talo.company.v1)",
     description: "The client profile produced by the Company Intelligence skill. Every claim carries a source.",
+  },
+  "registry-file.schema.json": {
+    schema: registryFileSchema,
+    title: "Talo registry file (talo.registry.v1)",
+    description:
+      "Companies and partnership signals to add to Talo's shared registry. Everything starts as needs_review; verification happens in Talo's review queue, never in the file.",
   },
   "outreach-file.schema.json": {
     schema: outreachFileSchema,

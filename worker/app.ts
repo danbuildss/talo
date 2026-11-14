@@ -3,6 +3,7 @@ import { bodyLimit } from "hono/body-limit";
 import type { AppEnv } from "./env.ts";
 import { jsonError, securityHeaders } from "./http.ts";
 import { type AuthOptions, requireAdmin } from "./middleware/auth.ts";
+import { admin } from "./routes/admin.ts";
 import { workspaces } from "./routes/workspaces.ts";
 
 export function createApp(auth: AuthOptions = {}) {
@@ -25,6 +26,7 @@ export function createApp(auth: AuthOptions = {}) {
 
   app.get("/api/me", (c) => c.json({ email: c.get("adminEmail") }));
   app.route("/api/workspaces", workspaces);
+  app.route("/api/admin", admin);
 
   app.notFound((c) => jsonError(c, 404, "not_found", "Not found."));
   app.onError((err, c) => {

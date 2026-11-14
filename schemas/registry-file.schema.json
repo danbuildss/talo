@@ -1,0 +1,314 @@
+{
+  "$id": "https://github.com/danbuildss/talo/schemas/registry-file.schema.json",
+  "title": "Talo registry file (talo.registry.v1)",
+  "description": "Companies and partnership signals to add to Talo's shared registry. Everything starts as needs_review; verification happens in Talo's review queue, never in the file.",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "string",
+      "const": "talo.registry.v1"
+    },
+    "companies": {
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "domain": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "categories": {
+            "default": [],
+            "maxItems": 10,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$"
+            }
+          },
+          "aliases": {
+            "default": [],
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "name",
+                    "domain",
+                    "github_org",
+                    "x_handle"
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                }
+              },
+              "required": [
+                "kind",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "sources": {
+            "default": [],
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "website",
+                    "docs",
+                    "partner_page",
+                    "announcement",
+                    "rss_item",
+                    "github_release",
+                    "registry_entry",
+                    "x_post",
+                    "directory",
+                    "user_submitted"
+                  ]
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                },
+                "published_at": {
+                  "default": null,
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "excerpt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              },
+              "required": [
+                "url",
+                "kind",
+                "title"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "is_sample": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "domain"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "signals": {
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "company_domain": {
+            "type": "string"
+          },
+          "signal_type": {
+            "type": "string",
+            "enum": [
+              "partner_program_launched",
+              "collaboration_request",
+              "partnerships_role_posted",
+              "integration_announced",
+              "api_or_sdk_released",
+              "product_launched",
+              "ecosystem_expansion"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "factual_claim": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "source_excerpt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "opportunity_note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "event_date": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+          },
+          "primary_source": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "website",
+                  "docs",
+                  "partner_page",
+                  "announcement",
+                  "rss_item",
+                  "github_release",
+                  "registry_entry",
+                  "x_post",
+                  "directory",
+                  "user_submitted"
+                ]
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "published_at": {
+                "default": null,
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "excerpt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "url",
+              "kind",
+              "title"
+            ],
+            "additionalProperties": false
+          },
+          "corroborating_sources": {
+            "default": [],
+            "maxItems": 5,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "website",
+                    "docs",
+                    "partner_page",
+                    "announcement",
+                    "rss_item",
+                    "github_release",
+                    "registry_entry",
+                    "x_post",
+                    "directory",
+                    "user_submitted"
+                  ]
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                },
+                "published_at": {
+                  "default": null,
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "excerpt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              },
+              "required": [
+                "url",
+                "kind",
+                "title"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "is_sample": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "company_domain",
+          "signal_type",
+          "title",
+          "factual_claim",
+          "source_excerpt",
+          "primary_source"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "format"
+  ],
+  "additionalProperties": false
+}

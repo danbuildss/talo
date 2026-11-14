@@ -120,3 +120,12 @@ describe("findNearDuplicates", () => {
     ).toEqual([]);
   });
 });
+
+describe("registry sample file", () => {
+  it("is a valid talo.registry.v1 file", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { registryFileSchema } = await import("../shared/registry-file.ts");
+    const sample = JSON.parse(readFileSync(new URL("../samples/registry.sample.json", import.meta.url), "utf8"));
+    expect(registryFileSchema.safeParse(sample).success).toBe(true);
+  });
+});
