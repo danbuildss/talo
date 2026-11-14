@@ -1,14 +1,24 @@
 # Talo — Build Plan
 
-> **talo.** The intelligence behind better partnerships. *Better partnerships start here.*
+> **talo.** Find companies worth building with. *The intelligence behind better partnerships.*
 
-This is the plan everything is built from. It is derived from the *Talo Master Product, Business & Engineering Blueprint v1.0* (November 2026). Where other notes disagree, this file wins. Changes to it go through the normal loop: sketch, approve, PR.
+This is the plan everything is built from. It is derived from the *Talo Master Product, Business & Engineering Blueprint v1.0* and the *Product Direction Update v1.1* (November 2026). Where other notes disagree, this file wins. Changes to it go through the normal loop: sketch, approve, PR.
 
 ---
 
 ## 1. Product direction
 
-### What Talo is
+### Direction update v1.1 (approved 2026-11-14)
+Talo is a **partnership discovery and intelligence platform**, not only a report generator. Reference: Frontrun (frontrun.vc) helps investors discover startups early; **Talo helps companies discover partnership opportunities early.** We learn from its signal-first, come-back-often model; we don't copy its design, branding, data methods or investor focus.
+
+Architecture: **company database → partnership signals → Discover feed → partner matching → outreach → relationship tracking.** The data is the product's foundation; AI is the analysis layer on top. Three layers:
+1. **Company intelligence** (shared): who companies are and what they build.
+2. **Partnership signals** (shared): what changed that could create an opportunity, each with a source.
+3. **Partnership intelligence** (private to a workspace): why a company fits one customer. There is no universal fit score.
+
+Rule: **no source, no verified claim.** Full design: `docs/DATA-ENGINE.md`.
+
+### What Talo helps answer
 A tool that helps a company answer five questions about partnerships:
 1. Who should we partner with?
 2. Why would that company benefit from working with us?
@@ -42,7 +52,9 @@ Not a general AI assistant · not bulk lead generation or email harvesting · no
 
 ---
 
-## 2. MVP scope (the private app, Phase 3a–3c)
+## 2. Private workspace scope (Match, Outreach, Watch: after Data and Discover)
+
+These workspace features were the original private MVP. After v1.1 they are built on top of the shared company database, as Talo Match, Outreach and Watch. M1 (admin access) is done.
 
 ### In
 | # | Feature | Done when |
@@ -60,7 +72,7 @@ Not a general AI assistant · not bulk lead generation or email harvesting · no
 | M11 | Quality basics | Usable on a phone; empty, loading and error states; sample data clearly labelled; no secrets in the frontend bundle. |
 
 ### Out (explicitly)
-Live AI research inside the app · AI API calls of any kind · automatic sending · public sign-up and customer accounts · payments · search-API integrations · X/Grok signal monitoring · Telegram notifications · teams and roles · public landing page (see Phase 2 decision) · analytics dashboards.
+Live AI research inside the app · AI API calls of any kind · automatic sending · public sign-up and customer accounts · payments · search-API integrations · X/Grok signal monitoring · Telegram notifications · teams and roles · analytics dashboards. (A public, read-only Discover site is now in scope: see §8.)
 
 Phase 1 research happens with Claude **outside** the app and comes in through import (M3). The app does not pretend to research.
 
@@ -117,7 +129,9 @@ Building Talo with Claude doesn't give the deployed app a free AI. In Phases 1�
 
 ## 4. Domain model
 
-Every table except `workspaces` carries `workspace_id`, and every query filters by it. IDs are random (UUIDs). Times are ISO-8601 UTC.
+**Shared data (v1.1):** companies, aliases, categories, sources, watched sources, signal types, signal events, company relationships, verification reviews and ingestion runs. These have no `workspace_id`, are written only by admins, and are public only when verified. Full schema and rules: `docs/DATA-ENGINE.md`. Workspace candidates link to a shared company (`company_id`), so companies are never duplicated across workspaces.
+
+**Private workspace data:** every private table carries `workspace_id`, and every query filters by it. IDs are random (UUIDs). Times are ISO-8601 UTC.
 
 ```
 workspace ─┬─ company_profile (1)
@@ -228,42 +242,41 @@ Dan recruits 1–3 suitable companies. Free or reduced diagnostic, aiming for a 
 Claude prepares intake forms, briefs and DM drafts; Dan does all outreach.
 **Done when:** a customer pays, or we have concrete evidence of why they won't.
 
-### Phase 3 — Private MVP (weeks 3–5, shaped by Phase 2) — back end first
-Features M1–M11 (§2), deployed on Cloudflare free tier. The back end is built and proven before any screens, then plain screens, then polish. One small PR per step.
+### Status
+Phases 0 and 1 are done (PRs #1–#4). The back-end foundation (Worker, database, admin login) is done (PR #5). Phase 2 (Client Zero, the paid service) continues alongside the build.
 
-**3a. Back end** (proven by automated tests and sample outputs, no screens)
-1. Project skeleton: Worker, TypeScript, lint, typecheck, tests, build.
-2. D1 migrations + typed data access + workspace-isolation test.
-3. Access protection + server-side JWT check (M1).
-4. Shared schemas + scoring formula + tests (M7).
-5. Company profile API (M2).
-6. Candidate import with validation and duplicate detection (M3, M4).
-7. Candidates API: list, search, filter, detail, edit (M5, M6).
-8. Outreach drafts API (M8).
-9. Pipeline API and follow-ups (M9).
-10. Export: JSON, CSV (M10).
-**Done when:** every back-end feature passes its tests locally and on the deployed Worker, and a sample Opportunity Map can be imported, scored, edited and exported through the API.
+### Phase 3 — Talo Data (back end, $0)
+The shared company and signal database, with curation tools. One PR each:
+1. Plan update (this).
+2. Company registry: companies, aliases, categories, sources; duplicate detection.
+3. Signals and verification: signal types, events, reviews, freshness/staleness, `npm run data:audit`.
+4. Admin curation API: import `talo.registry.v1`, review queue (approve, reject, correct), editing.
+5. Collector: source registry, Cron, RSS and GitHub-release adapters, page-change watch, ingestion runs.
 
-**3b. Plain screens** (React + Tailwind, unstyled but working, on the finished API)
-Company profile · candidate list and detail · drafts · pipeline · import and export · printable Opportunity Map.
-**Done when:** Dan can deliver an Opportunity Map from Talo without spreadsheets.
+**Data target (collection goals, not existing records):** 50 verified companies, 20 verified signals, 10 researched partner opportunities, across AI agents and dev infrastructure, wallets and onchain apps, payments, and developer platforms. Claude drafts records as needs_review; a person verifies them.
+**Done when:** the targets are met, `data:audit` passes, and every published record has a source, a review and a last-verified date.
 
-**3c. Polish**
-Brand look from `brand/BRAND.md`, phone layout, empty/loading/error states, sample-data labels, final security audit (M11).
-**Done when:** every item in §2 passes on production, on phone and desktop.
+### Phase 4 — Talo Discover (first public product)
+Public read-only API (published records only, rate-limited), then screens: landing page with real search and the latest real signals, signal feed, company pages. Mock-up first. No placeholder companies presented as real.
+**Before going public:** run the free TALO register searches and get a lawyer's check on the name (see §11).
+**Done when:** someone can find a genuinely useful company or signal they didn't know about, on phone and desktop.
 
-### Phase 4 — Commercial pilot (weeks 5–8)
-Deliver paid work through Talo; improve from real use. Track time saved, acceptance rate, qualified conversations, conversion, delivery cost, satisfaction, repeat intent.
-**Done when:** evidence that the workflow creates repeatable value.
+### Phase 5 — Talo Match
+A customer profile and objective, evaluated against the database with the existing fit formula and evidence confidence. Manual or Claude-assisted first. Results private to the workspace.
 
-### Phase 5 — Controlled automation (only after demand)
-Candidates: metered AI research, permitted search APIs, monitoring, "why now" signal alerts, evidence freshness checks, Telegram notifications, optional Grok/X signal agent (public signal → verify → match → score → human review → pipeline).
+### Phase 6 — Outreach and Watch
+Editable drafts (never sent automatically), watchlists, pipeline stages, follow-ups and change alerts. Brings back the paused workspace features from §2.
 
-**X "warm paths" (idea, not committed):** a user connects their X account; Talo reads only who they follow (not followers), matches that against their candidate list and stores only the matches, e.g. "you already follow this partner's founder". X's API is pay-per-use, so this needs a cost check under §9 first. Only the official X API; no unofficial resellers. Until then, warm paths are gathered by hand in client intake. Each needs spending caps, per-workspace limits, audit records, human approval. Never automated unsolicited outreach.
-**Done when:** automation saves work without making recommendations less trustworthy or costs uncontrolled.
+### Phase 7 — Recurring signal engine
+More permitted sources, change detection, alerts, automated freshness checks. Optional authorized X access with a spending cap under §9. Only after source reliability and user demand are shown.
 
-### Phase 6 — Self-service SaaS (only when the economics justify it)
-Multi-tenant auth, onboarding, payments, credits, roles, usage dashboard, in-app research, export and deletion, support. Managed service stays available.
+**X "warm paths" (idea, not committed):** a user connects their X account; Talo reads only who they follow (not followers), matches that against their candidates and stores only the matches. Needs a §9 cost check first; official X API only.
+
+### Phase 8 — Talo API and MCP
+Structured access for AI agents (search, signals, matching), with authentication and usage limits.
+
+### Phase 9 — Self-service SaaS (only when the economics justify it)
+Accounts, subscriptions, credits, teams. Managed service stays available. No pricing until cost and usefulness of the data are measured.
 
 ---
 
@@ -289,17 +302,19 @@ After pilots: cost per research run · hours per brief · verification rate · a
 ### Risks
 - **Name:** Talo isn't trademark-cleared; talo.com and talo.club are in commercial use. A rename later costs more than one now.
 - **Demand:** the core bet (small teams pay for research-backed partnership opportunities) is unproven. Phases 1–2 exist to test it cheaply.
+- **Data effort:** a curated dataset needs steady human verification. If review takes too long, the feed goes stale; Phase 3 measures review time.
+- **Public data:** listing real companies publicly means every claim must be sourced and current; a wrong public claim costs trust fast.
 - **Research quality and time:** if a good Map takes too long by hand, service margins are poor. We measure this from Phase 1.
 - **Source access:** X and some directories limit automated access, and some can't be reached from Claude's cloud session. Dan may need to supply screenshots or links.
 - **Free-tier limits:** Cloudflare terms change. Checked before Phase 3, monitored after.
 - **Trust:** one invented fact in a client brief damages credibility. The evidence standard and "Needs verification" rule are the safeguard.
 
 ### Needs Dan's decision or action
-1. **Phase 1 test company:** which real company do we research first? (Somehow Internet itself, a company Dan knows, or a willing prospect.)
-2. **Landing page:** recommendation is no public page until the name check is done; use a Google Form or direct DMs for Phase 2.
-3. **Cloudflare account:** Dan creates and owns it; Claude never gets the credentials. Needed by Phase 3a step 3.
-4. **Legal entity** for contracts and invoices in Phase 2.
-5. **Trademark jurisdictions** to check.
+1. **Name check before Discover goes public:** free TALO register searches (UK, US, Nigeria) and a lawyer's check.
+2. **Cloudflare account:** Dan creates and owns it (`docs/DEPLOY.md`); Claude never gets the credentials. Needed before the collector runs.
+3. **Legal entity** for contracts and invoices.
+4. **Approve the first watched sources** (proposed by Claude).
 
 ### Decided
 - 2026-11-12: Plan approved. Repo is public. Credit line "built by Somehow Internet". Back end first (3a → 3b → 3c). X warm paths parked in Phase 5. (Dan)
+- 2026-11-14: Direction update v1.1 approved: discovery and intelligence platform; Talo Data and Discover first; workspace features become Match, Outreach and Watch. (Dan)

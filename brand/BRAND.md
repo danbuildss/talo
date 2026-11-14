@@ -109,6 +109,7 @@ Spelling: plain international English.
 
 ## 7. Taglines
 
+- Product promise (Discover, v1.1): *Find companies worth building with.*
 - Positioning: *The intelligence behind better partnerships.*
 - Tagline: *Better partnerships start here.*
 - Primary call to action: *Find your partners* (opens a pilot request until automated research really exists).
