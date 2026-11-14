@@ -18,7 +18,7 @@ Dan does these steps in the Cloudflare dashboard. Claude never needs the account
    - `ACCESS_AUD` = the AUD tag
    - `ADMIN_EMAILS` = your email (comma-separate if more than one)
    Use type "Secret" for `ACCESS_AUD` and `ADMIN_EMAILS`.
-6. **Create the tables.** From a computer with the repo: `npx wrangler d1 migrations apply talo --remote`.
+6. **Create the tables.** From a computer with the repo: `npx wrangler d1 migrations apply DB --remote`.
 
 ## Check it works
 
@@ -60,4 +60,4 @@ The token is yours and expires; never paste it into chat or commit it. The audit
 
 ## Backups
 
-- `npx wrangler d1 export talo --remote --output backup-YYYY-MM-DD.sql` (keep the file private; never commit it).
+- `npx wrangler d1 export DB --remote --output backup-YYYY-MM-DD.sql` (keep the file private; never commit it).
