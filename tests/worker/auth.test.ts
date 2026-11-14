@@ -99,7 +99,7 @@ describe("parseAllowlist", () => {
 });
 
 describe("admin key login (Option B)", () => {
-  const KEY = "k".repeat(20) + "-test-admin-key-0123456789abcdef"; // 51 chars
+  const KEY = `${"k".repeat(20)}-test-admin-key-0123456789abcdef`; // 51 chars
   const keyEnv = { ADMIN_TOKEN: KEY, ADMIN_NAME: "Dan", ACCESS_AUD: "" }; // Access not configured
   const withKey = (key: string | null) =>
     call("/api/me", { as: null, headers: key === null ? {} : { authorization: `Bearer ${key}` } }, keyEnv);
