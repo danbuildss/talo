@@ -13,12 +13,13 @@
     "check": "npm run lint && npm run typecheck && npm test && npm run build",
     "check:research": "tsx scripts/check-research.ts",
     "dev": "wrangler dev",
-    "db:migrate:local": "wrangler d1 migrations apply talo --local",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
     "build": "wrangler deploy --dry-run --outdir dist",
-    "deploy": "wrangler d1 migrations apply talo --remote && wrangler deploy",
+    "deploy": "wrangler d1 migrations apply DB --remote && wrangler deploy",
     "data:audit": "tsx scripts/data-audit.ts",
     "registry:import": "tsx scripts/registry-import.ts",
-    "sources:seed": "tsx scripts/sources-seed.ts"
+    "sources:seed": "tsx scripts/sources-seed.ts",
+    "admin:key": "tsx scripts/admin-key.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.7",

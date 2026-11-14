@@ -2,3 +2,6 @@
 # The development shortcut only works on localhost with ENVIRONMENT=development.
 ENVIRONMENT=development
 DEV_ADMIN_EMAIL=you@example.com
+
+# Optional: test the admin key login locally instead of the shortcut above.
+# ADMIN_TOKEN=make-one-with-npm-run-admin-key

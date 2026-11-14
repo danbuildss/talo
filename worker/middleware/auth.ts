@@ -43,6 +43,32 @@ export interface AuthOptions {
   getKey?: (env: Env) => JWTVerifyGetKey;
 }
 
+/** An admin key must be at least this long, or it's treated as not configured. */
+export const MIN_ADMIN_TOKEN_LENGTH = 32;
+
+async function sha256(text: string): Promise<ArrayBuffer> {
+  return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+}
+
+/** Compares two secrets without leaking how much of them matched. */
+export async function secretsMatch(given: string, expected: string): Promise<boolean> {
+  const [a, b] = await Promise.all([sha256(given), sha256(expected)]);
+  return crypto.subtle.timingSafeEqual(a, b);
+}
+
+function accessConfigured(
+  env: Env,
+  allowlist: Set<string>,
+): env is Env & { ACCESS_TEAM_DOMAIN: string; ACCESS_AUD: string } {
+  return Boolean(env.ACCESS_TEAM_DOMAIN && env.ACCESS_AUD && allowlist.size > 0);
+}
+
+/**
+ * Admin-only access, two ways (either can be configured; both fail closed):
+ * 1. Admin key (Option B, chosen by Dan 2026-11-14): `Authorization: Bearer <ADMIN_TOKEN>`.
+ *    ADMIN_TOKEN is a Cloudflare secret of at least 32 characters.
+ * 2. Cloudflare Access (Zero Trust), if configured later: the Access token is verified here too.
+ */
 export function requireAdmin(options: AuthOptions = {}): MiddlewareHandler<AppEnv> {
   return async (c, next) => {
     const env = c.env;
@@ -54,31 +80,56 @@ export function requireAdmin(options: AuthOptions = {}): MiddlewareHandler<AppEn
       return next();
     }
 
-    if (!env.ACCESS_TEAM_DOMAIN || !env.ACCESS_AUD || allowlist.size === 0) {
-      console.error("auth: access is not configured (ACCESS_TEAM_DOMAIN, ACCESS_AUD, ADMIN_EMAILS)");
+    const tokenConfigured = (env.ADMIN_TOKEN ?? "").length >= MIN_ADMIN_TOKEN_LENGTH;
+    if (env.ADMIN_TOKEN && !tokenConfigured) {
+      console.error(`auth: ADMIN_TOKEN is shorter than ${MIN_ADMIN_TOKEN_LENGTH} characters and is ignored`);
+    }
+    const access = accessConfigured(env, allowlist);
+    if (!tokenConfigured && !access) {
+      console.error("auth: no sign-in method is configured (ADMIN_TOKEN, or Cloudflare Access)");
       return jsonError(c, 503, "not_configured", "Sign-in is not configured yet.");
     }
 
-    const token = c.req.header(ACCESS_HEADER);
-    if (!token) return jsonError(c, 401, "unauthenticated", "Sign in through Cloudflare Access.");
-
-    let email: string | undefined;
-    try {
-      const getKey = options.getKey?.(env) ?? remoteKeys(env.ACCESS_TEAM_DOMAIN);
-      const { payload } = await jwtVerify(token, getKey, {
-        issuer: `https://${env.ACCESS_TEAM_DOMAIN}`,
-        audience: env.ACCESS_AUD,
-        algorithms: ["RS256"],
-      });
-      email = typeof payload.email === "string" ? payload.email.toLowerCase() : undefined;
-    } catch {
-      return jsonError(c, 401, "unauthenticated", "Your sign-in is invalid or expired.");
+    // 1. Admin key
+    const bearer = c.req
+      .header("authorization")
+      ?.match(/^Bearer\s+(.+)$/i)?.[1]
+      ?.trim();
+    if (bearer && tokenConfigured) {
+      if (await secretsMatch(bearer, env.ADMIN_TOKEN as string)) {
+        c.set("adminEmail", (env.ADMIN_NAME || "admin").toLowerCase());
+        return next();
+      }
+      return jsonError(c, 401, "unauthenticated", "That admin key isn't valid.");
     }
 
-    if (!email || !allowlist.has(email)) {
-      return jsonError(c, 403, "forbidden", "This account is not allowed to use Talo.");
+    // 2. Cloudflare Access
+    const jwt = c.req.header(ACCESS_HEADER);
+    if (jwt && access) {
+      let email: string | undefined;
+      try {
+        const getKey = options.getKey?.(env) ?? remoteKeys(env.ACCESS_TEAM_DOMAIN);
+        const { payload } = await jwtVerify(jwt, getKey, {
+          issuer: `https://${env.ACCESS_TEAM_DOMAIN}`,
+          audience: env.ACCESS_AUD,
+          algorithms: ["RS256"],
+        });
+        email = typeof payload.email === "string" ? payload.email.toLowerCase() : undefined;
+      } catch {
+        return jsonError(c, 401, "unauthenticated", "Your sign-in is invalid or expired.");
+      }
+      if (!email || !allowlist.has(email)) {
+        return jsonError(c, 403, "forbidden", "This account is not allowed to use Talo.");
+      }
+      c.set("adminEmail", email);
+      return next();
     }
-    c.set("adminEmail", email);
-    return next();
+
+    return jsonError(
+      c,
+      401,
+      "unauthenticated",
+      tokenConfigured ? "Send your admin key as: Authorization: Bearer <key>." : "Sign in through Cloudflare Access.",
+    );
   };
 }

@@ -2,6 +2,13 @@
 
 Short records of technical decisions, newest first. Product decisions live in `PLAN.md`.
 
+## 2026-11-14: Admin key login (Option B)
+- **Why:** Cloudflare Zero Trust asks for a card on file even on its free plan; Dan chose not to. The admin API is protected by one long random key instead (`ADMIN_TOKEN`, a Cloudflare secret, 32+ characters; `npm run admin:key` makes a 48-character one).
+- **How it's checked:** `Authorization: Bearer <key>`, compared in constant time (both sides hashed, then `timingSafeEqual`). A key shorter than 32 characters is ignored and the API fails closed. Reviews are recorded under `ADMIN_NAME`.
+- **Cloudflare Access still works** if configured later; the Worker accepts either.
+- **Trade-off:** anyone holding the key is admin, so it lives only in the Cloudflare secret and Dan's password manager, and is replaced if it leaks. Fine for a single admin; Access is better once there are several.
+- **Worker renamed to `rightroom`** to match the Cloudflare dashboard; database commands use the binding name `DB`.
+
 ## 2026-11-14: Pilot A, Grok signal search
 - **Why Grok, not follow-graph tracking first:** partnership signals are posts ("partner program", "looking for integration partners", "now live on Base"), and xAI's `x_search` finds posts at about 5 USD per 1,000 posts plus tokens. Tracking who accounts follow costs about 0.01 USD per account returned, too expensive for full lists; a small follow-watch pilot (B) needs a 5 USD test first.
 - **Grok can't invent results:** a post is kept only if its link is an X post URL **and** xAI cited it in the search results. Links that appear only in Grok's own answer are dropped.

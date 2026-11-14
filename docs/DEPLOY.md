@@ -1,37 +1,34 @@
-# Deploying Talo (Cloudflare free tier)
+# Deploying Rightroom (Cloudflare free tier)
 
 Dan does these steps in the Cloudflare dashboard. Claude never needs the account login or any key. Nothing here should cost money; check Cloudflare's current free-tier limits before starting and stop if anything asks for payment.
 
 ## Once: set up
 
-1. **Cloudflare account.** Create one (free) if you don't have it.
-2. **Create the database.** Dashboard → Storage & Databases → D1 → Create → name it `talo`. Copy its **Database ID**.
-   Send Claude the ID (it isn't secret); it goes in `wrangler.jsonc` in a small PR.
-3. **Connect GitHub (optional, recommended).** Workers & Pages → Create → Import a repository → `danbuildss/talo`, branch `main`. Cloudflare then deploys on every merge. The build command is `npm run deploy`. Otherwise run `npm run deploy` yourself from a computer.
-4. **Turn on Cloudflare Access (the login).** Zero Trust → Access → Applications → Add an application → Self-hosted:
-   - Domain: the Worker's address (e.g. `talo.<your-subdomain>.workers.dev`).
-   - Policy: **Allow**, rule **Emails**, your email address.
-   - Save, then copy the **Application Audience (AUD) tag**.
-   - Your **team domain** is shown under Zero Trust → Settings (looks like `yourteam.cloudflareaccess.com`).
-5. **Set the Worker's settings.** Workers & Pages → talo → Settings → Variables and Secrets. Add:
-   - `ACCESS_TEAM_DOMAIN` = your team domain (e.g. `yourteam.cloudflareaccess.com`)
-   - `ACCESS_AUD` = the AUD tag
-   - `ADMIN_EMAILS` = your email (comma-separate if more than one)
-   Use type "Secret" for `ACCESS_AUD` and `ADMIN_EMAILS`.
-6. **Create the tables.** From a computer with the repo: `npx wrangler d1 migrations apply talo --remote`.
+1. **Cloudflare account.** Create one (free). No card is needed for Workers or D1.
+2. **Database.** Storage & Databases → D1 → Create. Send Claude the **Database ID** (it isn't secret); it goes in `wrangler.jsonc`. ✅ Done (2026-11-14).
+3. **Connect GitHub.** Workers & Pages → Create → Import a repository → `danbuildss/rightroom`. The Worker must be named `rightroom` (the name in `wrangler.jsonc`).
+   - Build command: `npm run build` (or leave empty)
+   - Deploy command: `npm run deploy` (creates or updates the database tables, then deploys)
+4. **Admin key (the login, Option B, no card needed).** On a computer with the repo: `npm run admin:key`. It prints a long random key once.
+   - Cloudflare: Workers & Pages → rightroom → Settings → Variables and Secrets → **Add → Secret**, name `ADMIN_TOKEN`, value = the key.
+   - Optional plain variable `ADMIN_NAME` = your name (recorded on reviews), e.g. `dan`.
+   - Keep the key in a password manager. Never paste it in chat or commit it. If it leaks, make a new one and replace the secret.
+5. **Tables.** If the deploy command above didn't create them: `npx wrangler d1 migrations apply DB --remote` from a computer with the repo.
+
+Cloudflare Access (Zero Trust) can replace or sit alongside the admin key later; it asks for a card on file even on its free plan. The Worker supports both.
 
 ## Check it works
 
-- `https://talo.<your-subdomain>.workers.dev/api/health` → `{"ok":true}` (public, no data).
-- `/api/me` in a browser → Cloudflare Access login → `{"email":"you@…"}`.
-- Without logging in, `/api/me` must not return data.
+- `https://rightroom.<your-subdomain>.workers.dev/api/health` → `{"ok":true}` (public, no data).
+- `curl -H "Authorization: Bearer $TALO_ADMIN_TOKEN" https://rightroom.<your-subdomain>.workers.dev/api/me` → `{"email":"dan"}`.
+- Without the key, `/api/me` must answer 401 and return no data.
 
-If sign-in isn't configured yet, the API answers "Sign-in is not configured yet" (503) and returns no data. It fails closed.
+If no sign-in is configured, the API answers "Sign-in is not configured yet" (503) and returns no data. It fails closed.
 
 ## The collector
 
 - The hourly schedule is in `wrangler.jsonc` and starts when the Worker is deployed.
-- Load the approved sources once: `npm run sources:seed` (with `TALO_URL` and `TALO_ACCESS_TOKEN` set as below). Sources marked "to confirm" start paused.
+- Load the approved sources once: `npm run sources:seed` (with `TALO_URL` and `TALO_ADMIN_TOKEN` set as below). Sources marked "to confirm" start paused.
 - Optional: a free GitHub token (no special permissions needed for public repositories) raises GitHub's limit from 60 to 5,000 requests an hour. Add it as a Secret named `GITHUB_TOKEN` in the Worker's settings. Never paste it in chat or commit it.
 - Check health at `/api/admin/watched-sources` and `/api/admin/runs`; new finds wait at `/api/admin/inbox`.
 
@@ -51,13 +48,12 @@ Talo also stops itself: it estimates each search's cost, records it, and skips G
 
 Reviews happen through the admin API (screens come later). From a computer with the repo:
 
-1. Install Cloudflare's `cloudflared` tool and log in once: `cloudflared access login https://talo.<your-subdomain>.workers.dev`
-2. Get a short-lived token from your own login: `export TALO_ACCESS_TOKEN=$(cloudflared access token -app=https://talo.<your-subdomain>.workers.dev)`
-3. Point the scripts at production: `export TALO_URL=https://talo.<your-subdomain>.workers.dev`
-4. `npm run registry:import -- file.json --dry-run`, then without `--dry-run`; `npm run data:audit`.
+1. `export TALO_URL=https://rightroom.<your-subdomain>.workers.dev`
+2. `export TALO_ADMIN_TOKEN=<your admin key>` (from your password manager)
+3. `npm run registry:import -- file.json --dry-run`, then without `--dry-run`; `npm run data:audit`; `npm run sources:seed`.
 
-The token is yours and expires; never paste it into chat or commit it. The audit is also readable in a browser at `/api/admin/audit` after logging in.
+Never paste the key into chat or commit it.
 
 ## Backups
 
-- `npx wrangler d1 export talo --remote --output backup-YYYY-MM-DD.sql` (keep the file private; never commit it).
+- `npx wrangler d1 export DB --remote --output backup-YYYY-MM-DD.sql` (keep the file private; never commit it).
