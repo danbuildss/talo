@@ -23,9 +23,33 @@ import {
   suggestSignalType,
   type WatchedSourceInput,
 } from "../../shared/collector.ts";
+import {
+  buildGrokRequest,
+  DEFAULT_GROK_PRICES,
+  estimateGrokCost,
+  type GrokPrices,
+  grokConfigSchema,
+  parseGrokResponse,
+} from "../../shared/grok.ts";
 import { normalizeUrl, type SourceKind } from "../../shared/registry.ts";
 import type { SignalType } from "../../shared/signals.ts";
 import { ConflictError, NotFoundError, newId, nowIso } from "./util.ts";
+
+/** Settings the collector reads from the Worker environment. */
+export interface CollectorEnv {
+  GITHUB_TOKEN?: string;
+  /** Pilot A: xAI API key (Cloudflare secret). Without it, Grok sources are skipped, not failed. */
+  XAI_API_KEY?: string;
+  GROK_MODEL?: string;
+  /** Monthly cap for Grok spend, in USD. Default 50 (approved by Dan, 2026-11-14). */
+  GROK_MONTHLY_CAP_USD?: string;
+  GROK_PRICE_PER_POST_USD?: string;
+  GROK_PRICE_INPUT_PER_M_USD?: string;
+  GROK_PRICE_OUTPUT_PER_M_USD?: string;
+}
+
+export const GROK_DEFAULT_MODEL = "grok-4.3";
+export const GROK_DEFAULT_CAP_USD = 50;
 
 export const USER_AGENT = "TaloCollector/0.1 (+https://github.com/danbuildss/talo)";
 const FETCH_TIMEOUT_MS = 10_000;
@@ -37,7 +61,7 @@ export interface WatchedSource {
   name: string;
   adapter: Adapter;
   url: string;
-  config: { format?: "mcp_registry" | "key_map"; label?: string };
+  config: { format?: "mcp_registry" | "key_map"; label?: string; [key: string]: unknown };
   terms_note: string;
   company_domain: string | null;
   signal_type_hint: SignalType | null;
@@ -87,6 +111,11 @@ export async function createWatchedSource(
   }
   if (input.adapter === "registry_listing" && !input.config.format) {
     throw new ConflictError("registry_listing needs config.format (mcp_registry or key_map)");
+  }
+  if (input.adapter === "grok_x_search" && !grokConfigSchema.safeParse(input.config).success) {
+    throw new ConflictError(
+      "grok_x_search needs config.query (and optional allowed_x_handles, lookback_days, max_posts)",
+    );
   }
   const domain = input.company_domain ? normalizeDomain(input.company_domain) : null;
   if (input.company_domain && !domain) throw new ConflictError("company_domain isn't a valid domain");
@@ -197,6 +226,7 @@ const SOURCE_KIND: Record<Adapter, SourceKind> = {
   github_releases: "github_release",
   page_watch: "partner_page",
   registry_listing: "registry_entry",
+  grok_x_search: "x_post",
 };
 
 interface AdapterResult {
@@ -230,6 +260,8 @@ async function runAdapter(source: WatchedSource, body: string, state: Record<str
         : [];
       return { items, state: { ...state, hash: fp.hash } };
     }
+    case "grok_x_search":
+      throw new Error("grok_x_search is handled by collectGrok");
     case "registry_listing": {
       const json = JSON.parse(body);
       if (source.config.format === "mcp_registry") return { items: parseMcpRegistry(json, source.url), state };
@@ -266,6 +298,124 @@ function requestFor(
   };
 }
 
+function num(value: string | undefined, fallback: number): number {
+  const n = Number(value);
+  return value !== undefined && value !== "" && Number.isFinite(n) && n >= 0 ? n : fallback;
+}
+
+function grokPrices(env: CollectorEnv): GrokPrices {
+  return {
+    per_post_usd: num(env.GROK_PRICE_PER_POST_USD, DEFAULT_GROK_PRICES.per_post_usd),
+    input_per_million_usd: num(env.GROK_PRICE_INPUT_PER_M_USD, DEFAULT_GROK_PRICES.input_per_million_usd),
+    output_per_million_usd: num(env.GROK_PRICE_OUTPUT_PER_M_USD, DEFAULT_GROK_PRICES.output_per_million_usd),
+  };
+}
+
+/** Talo's estimated Grok spend so far this calendar month (UTC). */
+export async function grokSpendThisMonth(db: D1Database, now = new Date()): Promise<number> {
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
+  const row = await db
+    .prepare(
+      "SELECT COALESCE(SUM(estimated_usd), 0) AS total FROM spend_ledger WHERE provider = 'xai' AND created_at >= ? AND created_at < ?",
+    )
+    .bind(start, end)
+    .first<{ total: number }>();
+  return row?.total ?? 0;
+}
+
+type Collected =
+  | { status: "skipped"; reason: string; retryAt: string }
+  | { status: "not_modified" }
+  | {
+      status: "ok";
+      result: AdapterResult;
+      etag: string | null;
+      lastModified: string | null;
+      spend?: D1PreparedStatement;
+    };
+
+/** Pilot A: one Grok X search, inside the monthly cap. */
+async function collectGrok(
+  db: D1Database,
+  source: WatchedSource,
+  env: CollectorEnv,
+  fetcher: typeof fetch,
+  now: Date,
+): Promise<Collected> {
+  if (!env.XAI_API_KEY) {
+    return {
+      status: "skipped",
+      reason: "Skipped: XAI_API_KEY is not set",
+      retryAt: addHours(now, source.interval_hours),
+    };
+  }
+  const cap = num(env.GROK_MONTHLY_CAP_USD, GROK_DEFAULT_CAP_USD);
+  const spent = await grokSpendThisMonth(db, now);
+  if (spent >= cap) {
+    const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
+    const reason = `Skipped: monthly Grok budget reached (${spent.toFixed(2)} of ${cap} USD)`;
+    return { status: "skipped", reason, retryAt: nextMonth };
+  }
+  const config = grokConfigSchema.parse(source.config);
+  let res: Response;
+  try {
+    res = await fetcher("https://api.x.ai/v1/responses", {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${env.XAI_API_KEY}`,
+        "content-type": "application/json",
+        "user-agent": USER_AGENT,
+      },
+      body: JSON.stringify(buildGrokRequest(config, env.GROK_MODEL || GROK_DEFAULT_MODEL, now)),
+      signal: AbortSignal.timeout(90_000),
+    });
+  } catch (err) {
+    throw new FetchError(`could not reach api.x.ai: ${err instanceof Error ? err.name : "error"}`);
+  }
+  if (!res.ok) throw new FetchError(`api.x.ai answered ${res.status}`);
+  let parsed: ReturnType<typeof parseGrokResponse>;
+  try {
+    parsed = parseGrokResponse(await res.json());
+  } catch (err) {
+    throw new FetchError(`couldn't read Grok's answer (${err instanceof Error ? err.name : "error"})`);
+  }
+  const cost = estimateGrokCost(parsed, grokPrices(env));
+  const spend = db
+    .prepare(
+      `INSERT INTO spend_ledger (id, provider, watched_source_id, posts, input_tokens, output_tokens, estimated_usd, created_at)
+       VALUES (?, 'xai', ?, ?, ?, ?, ?, ?)`,
+    )
+    .bind(newId(), source.id, parsed.citations, parsed.input_tokens, parsed.output_tokens, cost, nowIso(now));
+  return {
+    status: "ok",
+    result: { items: parsed.items, state: { last_dropped: parsed.dropped } },
+    etag: null,
+    lastModified: null,
+    spend,
+  };
+}
+
+async function collect(
+  db: D1Database,
+  source: WatchedSource,
+  row: WatchedRow,
+  env: CollectorEnv,
+  fetcher: typeof fetch,
+  now: Date,
+): Promise<Collected> {
+  if (source.adapter === "grok_x_search") return collectGrok(db, source, env, fetcher, now);
+  const req = requestFor(source, env);
+  const res = await politeFetch(fetcher, req.url, row, req.headers);
+  if (res.status === "not_modified") return res;
+  try {
+    const result = await runAdapter(source, res.body, JSON.parse(row.state_json));
+    return { status: "ok", result, etag: res.etag, lastModified: res.lastModified };
+  } catch {
+    throw new FetchError("couldn't read the response; the format may have changed");
+  }
+}
+
 export interface RunOutcome {
   source_id: string;
   status: "ok" | "not_modified" | "failed";
@@ -279,7 +429,7 @@ export interface RunOutcome {
 export async function runSource(
   db: D1Database,
   sourceId: string,
-  options: { fetcher?: typeof fetch; env?: { GITHUB_TOKEN?: string }; now?: Date } = {},
+  options: { fetcher?: typeof fetch; env?: CollectorEnv; now?: Date } = {},
 ): Promise<RunOutcome> {
   const now = options.now ?? new Date();
   const fetcher = options.fetcher ?? fetch;
@@ -291,9 +441,16 @@ export async function runSource(
   const statements: D1PreparedStatement[] = [];
 
   try {
-    const req = requestFor(source, options.env ?? {});
-    const res = await politeFetch(fetcher, req.url, row, req.headers);
-    if (res.status === "not_modified") {
+    const res = await collect(db, source, row, options.env ?? {}, fetcher, now);
+    if (res.status === "skipped") {
+      // Not a failure: no key yet, or the monthly budget is used up.
+      outcome = { source_id: source.id, status: "not_modified", items_seen: 0, items_new: 0, error: res.reason };
+      statements.push(
+        db
+          .prepare("UPDATE watched_sources SET last_error = ?, next_run_at = ?, updated_at = ? WHERE id = ?")
+          .bind(res.reason, res.retryAt, startedAt, source.id),
+      );
+    } else if (res.status === "not_modified") {
       outcome = { source_id: source.id, status: "not_modified", items_seen: 0, items_new: 0 };
       statements.push(
         db
@@ -303,14 +460,8 @@ export async function runSource(
           .bind(startedAt, addHours(now, source.interval_hours), startedAt, source.id),
       );
     } else {
-      let result: AdapterResult;
-      try {
-        result = await runAdapter(source, res.body, JSON.parse(row.state_json));
-      } catch (err) {
-        throw new FetchError(
-          `couldn't read the response (${err instanceof Error ? err.name : "error"}); the format may have changed`,
-        );
-      }
+      const result = res.result;
+      if (res.spend) statements.push(res.spend);
       const items = result.items.slice(0, MAX_ITEMS_PER_RUN);
       let fresh = 0;
       const seenThisRun = new Set<string>();
@@ -435,7 +586,7 @@ export async function runSource(
 /** The scheduled job: check up to `limit` enabled sources that are due, oldest first. */
 export async function runDueSources(
   db: D1Database,
-  options: { fetcher?: typeof fetch; env?: { GITHUB_TOKEN?: string }; now?: Date; limit?: number } = {},
+  options: { fetcher?: typeof fetch; env?: CollectorEnv; now?: Date; limit?: number } = {},
 ): Promise<RunOutcome[]> {
   const now = options.now ?? new Date();
   const { results } = await db

@@ -292,3 +292,111 @@ describe("robustness (found in the first local run)", () => {
     expect(runs.runs[0]?.status).toBe("failed");
   });
 });
+
+describe("Pilot A: Grok signal search", () => {
+  const grokSource = (overrides: Record<string, unknown> = {}) =>
+    source({
+      adapter: "grok_x_search",
+      url: `https://x.com/search?q=test-${n + 1}`,
+      config: { query: "companies announcing partner programs" },
+      ...overrides,
+    });
+
+  function reply(ids: string[], cited = ids) {
+    const items = ids.map((id) => ({
+      post_url: `https://x.com/acmehq/status/${id}`,
+      posted_at: "2026-11-13",
+      post_text: "Introducing the Acme partner program",
+      company_website: "https://acme-grok.example",
+    }));
+    return ok(
+      JSON.stringify({
+        output: [
+          {
+            type: "message",
+            content: [
+              {
+                type: "output_text",
+                text: JSON.stringify({ items }),
+                annotations: cited.map((id) => ({ type: "url_citation", url: `https://x.com/acmehq/status/${id}` })),
+              },
+            ],
+          },
+        ],
+        usage: { input_tokens: 10_000, output_tokens: 500 },
+      }),
+    );
+  }
+
+  it("is skipped (not failed) when no key is set", async () => {
+    const s = await grokSource();
+    const { fetcher, requests } = fakeFetch();
+    const out = await runSource(env.DB, s.id, { fetcher, env: {} });
+    expect(out).toMatchObject({ status: "not_modified", error: "Skipped: XAI_API_KEY is not set" });
+    expect(requests).toHaveLength(0);
+    expect((await getWatchedSource(env.DB, s.id))?.consecutive_failures).toBe(0);
+  });
+
+  it("posts the search to xAI, keeps only cited posts, and records the spend", async () => {
+    const s = await grokSource();
+    const base = `${Date.now()}`.padEnd(18, "0");
+    const { fetcher, requests } = fakeFetch(reply([`${base}1`, `${base}2`], [`${base}1`]));
+    const out = await runSource(env.DB, s.id, { fetcher, env: { XAI_API_KEY: "test-key" } });
+    expect(out).toMatchObject({ status: "ok", items_new: 1 });
+    expect(requests[0]?.url).toBe("https://api.x.ai/v1/responses");
+    expect(requests[0]?.method).toBe("POST");
+    expect(requests[0]?.headers.get("authorization")).toBe("Bearer test-key");
+    const item = (await listInbox(env.DB)).find((i) => i.watched_source_id === s.id);
+    expect(item).toMatchObject({
+      suggested_signal_type: "partner_program_launched",
+      suggested_domain: "acme-grok.example",
+    });
+    const spend = await env.DB.prepare("SELECT posts, estimated_usd FROM spend_ledger WHERE watched_source_id = ?")
+      .bind(s.id)
+      .first<{ posts: number; estimated_usd: number }>();
+    expect(spend?.posts).toBe(1);
+    expect(spend?.estimated_usd).toBeGreaterThan(0);
+  });
+
+  it("stops at the monthly cap until next month", async () => {
+    const s = await grokSource();
+    const now = new Date("2031-03-15T00:00:00Z");
+    await env.DB.prepare(
+      "INSERT INTO spend_ledger (id, provider, posts, estimated_usd, created_at) VALUES (?, 'xai', 0, 49.99, ?)",
+    )
+      .bind(`cap-test-${n}`, "2031-03-02T00:00:00.000Z")
+      .run();
+    // Under the cap: runs.
+    const under = await runSource(env.DB, s.id, {
+      fetcher: fakeFetch(reply([])).fetcher,
+      env: { XAI_API_KEY: "k" },
+      now,
+    });
+    expect(under.status).toBe("ok");
+    // A cap at or below what's spent: skipped, and not retried before next month.
+    const { fetcher, requests } = fakeFetch();
+    const over = await runSource(env.DB, s.id, { fetcher, env: { XAI_API_KEY: "k", GROK_MONTHLY_CAP_USD: "40" }, now });
+    expect(over).toMatchObject({ status: "not_modified", error: expect.stringMatching(/budget reached/) });
+    expect(requests).toHaveLength(0);
+    expect((await getWatchedSource(env.DB, s.id))?.next_run_at).toBe("2031-04-01T00:00:00.000Z");
+  });
+
+  it("an error from xAI is a normal failure", async () => {
+    const s = await grokSource();
+    const out = await runSource(env.DB, s.id, {
+      fetcher: fakeFetch(new Response("{}", { status: 401 })).fetcher,
+      env: { XAI_API_KEY: "wrong" },
+    });
+    expect(out).toMatchObject({ status: "failed", error: "api.x.ai answered 401" });
+  });
+
+  it("refuses a Grok source without a query", async () => {
+    await expect(grokSource({ config: {} })).rejects.toThrow(/config.query/);
+  });
+
+  it("shows this month's spend", async () => {
+    const res = await call("/api/admin/spend");
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ provider: "xai", cap_usd: 50, key_configured: false });
+  });
+});
