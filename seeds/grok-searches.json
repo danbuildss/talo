@@ -1,0 +1,68 @@
+{
+  "note": "Pilot A: Grok signal search, approved by Dan on 2026-11-14 with a 50 USD monthly cap. Results go to the inbox only; a person verifies every post. Loaded by npm run sources:seed. Without XAI_API_KEY these are skipped, not failed.",
+  "sources": [
+    {
+      "name": "Grok: AI and dev-tool partner programs",
+      "adapter": "grok_x_search",
+      "url": "https://x.com/search?q=partner%20program%20AI%20agents%20developers",
+      "config": { "query": "AI agent or developer-tool companies announcing a partner, integrations or ecosystem program", "lookback_days": 2, "max_posts": 10 },
+      "terms_note": "Official xAI API (x_search tool), pay-per-use within Dan's approved monthly cap. Store post links and short excerpts only.",
+      "signal_type_hint": "partner_program_launched",
+      "interval_hours": 24
+    },
+    {
+      "name": "Grok: requests for integration partners",
+      "adapter": "grok_x_search",
+      "url": "https://x.com/search?q=looking%20for%20integration%20partners",
+      "config": { "query": "companies publicly looking for integration partners, design partners or collaborators for AI agents or developer tools", "lookback_days": 2, "max_posts": 10 },
+      "terms_note": "Official xAI API (x_search tool), pay-per-use within Dan's approved monthly cap. Store post links and short excerpts only.",
+      "signal_type_hint": "collaboration_request",
+      "interval_hours": 24
+    },
+    {
+      "name": "Grok: wallet and onchain integrations",
+      "adapter": "grok_x_search",
+      "url": "https://x.com/search?q=wallet%20new%20integration%20partner%20program",
+      "config": { "query": "crypto wallet or onchain app teams announcing new integrations or a partner program", "lookback_days": 2, "max_posts": 10 },
+      "terms_note": "Official xAI API (x_search tool), pay-per-use within Dan's approved monthly cap. Store post links and short excerpts only.",
+      "signal_type_hint": "integration_announced",
+      "interval_hours": 24
+    },
+    {
+      "name": "Grok: now live on Base",
+      "adapter": "grok_x_search",
+      "url": "https://x.com/search?q=now%20live%20on%20Base",
+      "config": { "query": "projects and companies announcing they are now live on Base or launching on Base", "lookback_days": 2, "max_posts": 10 },
+      "terms_note": "Official xAI API (x_search tool), pay-per-use within Dan's approved monthly cap. Store post links and short excerpts only.",
+      "signal_type_hint": "ecosystem_expansion",
+      "interval_hours": 24
+    },
+    {
+      "name": "Grok: x402 launches and integrations",
+      "adapter": "grok_x_search",
+      "url": "https://x.com/search?q=x402%20integration%20launch",
+      "config": { "query": "companies launching x402 payment support or announcing x402 integrations", "lookback_days": 2, "max_posts": 10 },
+      "terms_note": "Official xAI API (x_search tool), pay-per-use within Dan's approved monthly cap. Store post links and short excerpts only.",
+      "signal_type_hint": "integration_announced",
+      "interval_hours": 24
+    },
+    {
+      "name": "Grok: new MCP servers from companies",
+      "adapter": "grok_x_search",
+      "url": "https://x.com/search?q=launching%20MCP%20server",
+      "config": { "query": "companies launching an official MCP server for their product so AI agents can use it", "lookback_days": 2, "max_posts": 10 },
+      "terms_note": "Official xAI API (x_search tool), pay-per-use within Dan's approved monthly cap. Store post links and short excerpts only.",
+      "signal_type_hint": "api_or_sdk_released",
+      "interval_hours": 24
+    },
+    {
+      "name": "Grok: payments and stablecoin partner programs",
+      "adapter": "grok_x_search",
+      "url": "https://x.com/search?q=stablecoin%20payments%20API%20partner%20program",
+      "config": { "query": "payments, stablecoin or financial-API companies announcing partner programs or new integrations", "lookback_days": 2, "max_posts": 10 },
+      "terms_note": "Official xAI API (x_search tool), pay-per-use within Dan's approved monthly cap. Store post links and short excerpts only.",
+      "signal_type_hint": "partner_program_launched",
+      "interval_hours": 24
+    }
+  ]
+}

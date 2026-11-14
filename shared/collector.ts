@@ -7,7 +7,7 @@ import { z } from "zod";
 import { normalizeDomain } from "./candidate.ts";
 import { SIGNAL_TYPE_SLUGS, type SignalType } from "./signals.ts";
 
-export const ADAPTERS = ["rss", "github_releases", "page_watch", "registry_listing"] as const;
+export const ADAPTERS = ["rss", "github_releases", "page_watch", "registry_listing", "grok_x_search"] as const;
 export type Adapter = (typeof ADAPTERS)[number];
 
 /** One thing a source published. */
@@ -233,7 +233,15 @@ export const watchedSourceInputSchema = z.strictObject({
   adapter: z.enum(ADAPTERS),
   url: z.url({ protocol: /^https$/, error: "url must be an https link" }),
   config: z
-    .strictObject({ format: z.enum(["mcp_registry", "key_map"]).optional(), label: z.string().max(80).optional() })
+    .strictObject({
+      format: z.enum(["mcp_registry", "key_map"]).optional(),
+      label: z.string().max(80).optional(),
+      // grok_x_search (Pilot A); checked in full by grokConfigSchema
+      query: z.string().max(300).optional(),
+      allowed_x_handles: z.array(z.string()).max(10).optional(),
+      lookback_days: z.number().int().optional(),
+      max_posts: z.number().int().optional(),
+    })
     .default({}),
   terms_note: z
     .string()

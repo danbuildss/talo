@@ -1,13 +1,19 @@
 /**
- * Add the approved watched sources (seeds/watched-sources.json). Already-added ones are skipped.
+ * Add the approved watched sources (seeds/watched-sources.json and seeds/grok-searches.json).
+ * Already-added ones are skipped.
  *   npm run sources:seed
  */
 import { readFileSync } from "node:fs";
 import { taloFetch } from "./talo-api.ts";
 
-const { sources } = JSON.parse(readFileSync(new URL("../seeds/watched-sources.json", import.meta.url), "utf8")) as {
-  sources: Record<string, unknown>[];
-};
+const load = (file: string) =>
+  (
+    JSON.parse(readFileSync(new URL(`../seeds/${file}`, import.meta.url), "utf8")) as {
+      sources: Record<string, unknown>[];
+    }
+  ).sources;
+// The approved feeds and registries, plus Pilot A's Grok searches.
+const sources = [...load("watched-sources.json"), ...load("grok-searches.json")];
 let added = 0;
 let skipped = 0;
 for (const s of sources) {

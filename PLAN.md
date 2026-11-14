@@ -323,3 +323,4 @@ After pilots: cost per research run · hours per brief · verification rate · a
 - 2026-11-12: Plan approved. Repo is public. Credit line "built by Somehow Internet". Back end first (3a → 3b → 3c). X warm paths parked in Phase 5. (Dan)
 - 2026-11-14: Direction update v1.1 approved: discovery and intelligence platform; Talo Data and Discover first; workspace features become Match, Outreach and Watch. (Dan)
 - 2026-11-14: Signal digest added right after Discover (Phase 4b). Name 'Talo' to be replaced; Claude to propose names. (Dan)
+- 2026-11-14: Pilot A (Grok signal search via the official xAI API) approved with a 50 USD monthly cap; Pilot B (follow watch of ~25 partnership/ecosystem accounts) only after a 5 USD test. (Dan)

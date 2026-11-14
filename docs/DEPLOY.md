@@ -35,6 +35,18 @@ If sign-in isn't configured yet, the API answers "Sign-in is not configured yet"
 - Optional: a free GitHub token (no special permissions needed for public repositories) raises GitHub's limit from 60 to 5,000 requests an hour. Add it as a Secret named `GITHUB_TOKEN` in the Worker's settings. Never paste it in chat or commit it.
 - Check health at `/api/admin/watched-sources` and `/api/admin/runs`; new finds wait at `/api/admin/inbox`.
 
+## Pilot A: Grok signal search (optional, paid, capped)
+
+Approved by Dan on 2026-11-14 with a **50 USD monthly cap**. Without a key, the Grok searches are skipped and nothing is spent.
+
+1. Go to **console.x.ai** (xAI's developer console). A Grok app or X Premium subscription is **not** the same thing: the API needs its own credits.
+2. Add a small amount of credit, and **set a monthly spending limit there** (the hard stop). Suggested: 50 USD.
+3. Create an API key. In Cloudflare: Workers & Pages → talo → Settings → Variables and Secrets → add a **Secret** named `XAI_API_KEY`. Never paste it in chat or commit it.
+4. Optional settings (plain variables): `GROK_MONTHLY_CAP_USD` (default 50), `GROK_MODEL` (default `grok-4.3`).
+5. `npm run sources:seed` adds the 7 Grok searches with the other sources.
+
+Talo also stops itself: it estimates each search's cost, records it, and skips Grok searches for the rest of the month once the cap is reached. Check `/api/admin/spend`. Results go to the inbox only; every post is checked by a person before it becomes a signal.
+
 ## Curating data in production
 
 Reviews happen through the admin API (screens come later). From a computer with the repo:

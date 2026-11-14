@@ -2,6 +2,13 @@
 
 Short records of technical decisions, newest first. Product decisions live in `PLAN.md`.
 
+## 2026-11-14: Pilot A, Grok signal search
+- **Why Grok, not follow-graph tracking first:** partnership signals are posts ("partner program", "looking for integration partners", "now live on Base"), and xAI's `x_search` finds posts at about 5 USD per 1,000 posts plus tokens. Tracking who accounts follow costs about 0.01 USD per account returned, too expensive for full lists; a small follow-watch pilot (B) needs a 5 USD test first.
+- **Grok can't invent results:** a post is kept only if its link is an X post URL **and** xAI cited it in the search results. Links that appear only in Grok's own answer are dropped.
+- **Two spending stops:** the xAI console's monthly limit (hard), and Talo's own ledger, which estimates each search conservatively and skips Grok searches for the rest of the month at the cap (default 50 USD). No key means skipped, not failed.
+- **Same rules as every source:** results go to the inbox; a person verifies the post before it becomes a signal. Requests ask xAI not to store them (`store: false`). Official API only, no resellers.
+- `watched_sources` was rebuilt to allow the new adapter (SQLite can't change a CHECK in place); data is copied unchanged.
+
 ## 2026-11-14: Collector (Talo Data, step 4)
 - **The collector fills an inbox, never the feed.** New items from watched sources land in `collected_items`; a person turns one into a signal (writing the factual claim) or dismisses it. The collector never creates or verifies signals, and no AI runs in the Worker.
 - **Four readers:** RSS/Atom, GitHub releases (REST API, optional free token), page change detection (stores only a fingerprint; the first visit is a baseline), and registry listings (the MCP Registry, and key maps like the elizaOS plugin index, where only new keys count; the first visit is a baseline).
