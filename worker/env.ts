@@ -3,6 +3,10 @@ export interface Env {
   DB: D1Database;
   /** "production" in wrangler.jsonc; "development" only in a local .dev.vars; "test" in tests. */
   ENVIRONMENT: string;
+  /** Admin key (Option B): a Cloudflare secret, 32+ random characters. Make one with `npm run admin:key`. */
+  ADMIN_TOKEN?: string;
+  /** Name recorded as the reviewer when the admin key is used (e.g. "dan"). Default "admin". */
+  ADMIN_NAME?: string;
   /** Cloudflare Access team domain, e.g. "yourteam.cloudflareaccess.com". Set in the dashboard. */
   ACCESS_TEAM_DOMAIN?: string;
   /** Cloudflare Access application audience (AUD) tag. Set in the dashboard. */

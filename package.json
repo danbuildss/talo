@@ -18,7 +18,8 @@
     "deploy": "wrangler d1 migrations apply DB --remote && wrangler deploy",
     "data:audit": "tsx scripts/data-audit.ts",
     "registry:import": "tsx scripts/registry-import.ts",
-    "sources:seed": "tsx scripts/sources-seed.ts"
+    "sources:seed": "tsx scripts/sources-seed.ts",
+    "admin:key": "tsx scripts/admin-key.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.7",

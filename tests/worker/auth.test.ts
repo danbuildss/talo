@@ -97,3 +97,47 @@ describe("parseAllowlist", () => {
     expect(parseAllowlist(undefined).size).toBe(0);
   });
 });
+
+describe("admin key login (Option B)", () => {
+  const KEY = "k".repeat(20) + "-test-admin-key-0123456789abcdef"; // 51 chars
+  const keyEnv = { ADMIN_TOKEN: KEY, ADMIN_NAME: "Dan", ACCESS_AUD: "" }; // Access not configured
+  const withKey = (key: string | null) =>
+    call("/api/me", { as: null, headers: key === null ? {} : { authorization: `Bearer ${key}` } }, keyEnv);
+
+  it("lets the right key in and records the admin's name", async () => {
+    const res = await withKey(KEY);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ email: "dan" });
+  });
+
+  it("refuses a wrong key, a near-miss and a missing key", async () => {
+    expect((await withKey("wrong")).status).toBe(401);
+    expect((await withKey(`${KEY}x`)).status).toBe(401);
+    expect((await withKey(KEY.slice(0, -1))).status).toBe(401);
+    const missing = await withKey(null);
+    expect(missing.status).toBe(401);
+    expect(await missing.json()).toMatchObject({ error: { message: expect.stringMatching(/Authorization: Bearer/) } });
+  });
+
+  it("ignores a key that is too short and fails closed", async () => {
+    const res = await call(
+      "/api/me",
+      { as: null, headers: { authorization: "Bearer short" } },
+      { ADMIN_TOKEN: "short", ACCESS_AUD: "" },
+    );
+    expect(res.status).toBe(503);
+  });
+
+  it("protects every admin route with the key", async () => {
+    const res = await call("/api/admin/queue", { as: null }, keyEnv);
+    expect(res.status).toBe(401);
+    const ok = await call("/api/admin/queue", { as: null, headers: { authorization: `Bearer ${KEY}` } }, keyEnv);
+    expect(ok.status).toBe(200);
+  });
+
+  it("still accepts Cloudflare Access when both are configured", async () => {
+    const res = await call("/api/me", {}, { ADMIN_TOKEN: KEY }); // default test env has Access configured
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ email: "admin@talo.example" });
+  });
+});
