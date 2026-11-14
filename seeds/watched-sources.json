@@ -1,0 +1,141 @@
+{
+  "note": "The 14 sources Dan approved on 2026-11-14. Load with: npm run sources:seed. Sources whose address or access isn't confirmed start paused (enabled: false) until checked.",
+  "sources": [
+    {
+      "name": "Official MCP Registry",
+      "adapter": "registry_listing",
+      "url": "https://registry.modelcontextprotocol.io/v0/servers?limit=50",
+      "config": {
+        "format": "mcp_registry"
+      },
+      "terms_note": "Public read API of the official MCP Registry; no account needed for reading. Store titles, short excerpts and links only.",
+      "signal_type_hint": "integration_announced",
+      "interval_hours": 24
+    },
+    {
+      "name": "elizaOS plugin registry",
+      "adapter": "registry_listing",
+      "url": "https://plugins.elizacloud.ai/index.json",
+      "config": {
+        "format": "key_map",
+        "label": "New elizaOS plugin"
+      },
+      "terms_note": "To confirm: the old GitHub address returned 404 on 2026-11-14; elizaOS docs name this public index. Paused until checked.",
+      "company_domain": "elizaos.ai",
+      "signal_type_hint": "integration_announced",
+      "interval_hours": 24,
+      "enabled": false
+    },
+    {
+      "name": "Hermes Agent Marketplace (plugins)",
+      "adapter": "page_watch",
+      "url": "https://hermes-agent.nousresearch.com/marketplace?kind=plugins",
+      "terms_note": "Public page; Talo only stores a fingerprint to notice changes, then a person reviews the page.",
+      "company_domain": "nousresearch.com",
+      "signal_type_hint": "integration_announced",
+      "interval_hours": 48
+    },
+    {
+      "name": "x402 Bazaar / Agentic.Market (Coinbase)",
+      "adapter": "page_watch",
+      "url": "https://agentic.market/",
+      "terms_note": "To confirm: the public discovery endpoint and its terms. Paused until checked; page change detection only.",
+      "company_domain": "coinbase.com",
+      "signal_type_hint": "product_launched",
+      "interval_hours": 48,
+      "enabled": false
+    },
+    {
+      "name": "coinbase/x402 releases",
+      "adapter": "github_releases",
+      "url": "https://github.com/coinbase/x402",
+      "terms_note": "GitHub REST API (public repository releases), within GitHub's API terms and rate limits.",
+      "company_domain": "coinbase.com",
+      "signal_type_hint": "api_or_sdk_released",
+      "interval_hours": 24
+    },
+    {
+      "name": "coinbase/agentkit releases",
+      "adapter": "github_releases",
+      "url": "https://github.com/coinbase/agentkit",
+      "terms_note": "GitHub REST API (public repository releases), within GitHub's API terms and rate limits.",
+      "company_domain": "coinbase.com",
+      "signal_type_hint": "api_or_sdk_released",
+      "interval_hours": 24
+    },
+    {
+      "name": "vercel/ai releases",
+      "adapter": "github_releases",
+      "url": "https://github.com/vercel/ai",
+      "terms_note": "GitHub REST API (public repository releases), within GitHub's API terms and rate limits.",
+      "company_domain": "vercel.com",
+      "signal_type_hint": "api_or_sdk_released",
+      "interval_hours": 24
+    },
+    {
+      "name": "NousResearch/hermes-agent releases",
+      "adapter": "github_releases",
+      "url": "https://github.com/NousResearch/hermes-agent",
+      "terms_note": "GitHub REST API (public repository releases), within GitHub's API terms and rate limits.",
+      "company_domain": "nousresearch.com",
+      "signal_type_hint": "api_or_sdk_released",
+      "interval_hours": 24
+    },
+    {
+      "name": "elizaos/eliza releases",
+      "adapter": "github_releases",
+      "url": "https://github.com/elizaos/eliza",
+      "terms_note": "GitHub REST API (public repository releases), within GitHub's API terms and rate limits.",
+      "company_domain": "elizaos.ai",
+      "signal_type_hint": "api_or_sdk_released",
+      "interval_hours": 24
+    },
+    {
+      "name": "modelcontextprotocol/registry releases",
+      "adapter": "github_releases",
+      "url": "https://github.com/modelcontextprotocol/registry",
+      "terms_note": "GitHub REST API (public repository releases), within GitHub's API terms and rate limits.",
+      "company_domain": "modelcontextprotocol.io",
+      "signal_type_hint": "api_or_sdk_released",
+      "interval_hours": 24
+    },
+    {
+      "name": "Cloudflare developer changelog",
+      "adapter": "rss",
+      "url": "https://developers.cloudflare.com/changelog/index.xml",
+      "terms_note": "Public RSS feed published for syndication. Store titles, short excerpts and links only.",
+      "company_domain": "cloudflare.com",
+      "signal_type_hint": "product_launched",
+      "interval_hours": 24
+    },
+    {
+      "name": "Cloudflare blog: partners",
+      "adapter": "rss",
+      "url": "https://blog.cloudflare.com/tag/partners/rss",
+      "terms_note": "Public RSS feed published for syndication. Store titles, short excerpts and links only.",
+      "company_domain": "cloudflare.com",
+      "signal_type_hint": "integration_announced",
+      "interval_hours": 24
+    },
+    {
+      "name": "Stripe changelog",
+      "adapter": "rss",
+      "url": "https://stripe.com/blog/feed.rss",
+      "terms_note": "To confirm: feed address and terms. Paused until checked.",
+      "company_domain": "stripe.com",
+      "signal_type_hint": "product_launched",
+      "interval_hours": 24,
+      "enabled": false
+    },
+    {
+      "name": "Base blog",
+      "adapter": "rss",
+      "url": "https://blog.base.org/rss",
+      "terms_note": "To confirm: feed address and terms. Paused until checked.",
+      "company_domain": "base.org",
+      "signal_type_hint": "ecosystem_expansion",
+      "interval_hours": 24,
+      "enabled": false
+    }
+  ]
+}

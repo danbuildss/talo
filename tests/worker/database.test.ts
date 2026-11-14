@@ -99,6 +99,9 @@ describe("workspace isolation", () => {
       "signal_events",
       "signal_sources",
       "verification_reviews",
+      "watched_sources",
+      "ingestion_runs",
+      "collected_items",
     ];
     const { results } = await env.DB.prepare(
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' AND name != 'd1_migrations'",

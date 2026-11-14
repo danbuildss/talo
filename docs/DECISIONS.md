@@ -2,6 +2,14 @@
 
 Short records of technical decisions, newest first. Product decisions live in `PLAN.md`.
 
+## 2026-11-14: Collector (Talo Data, step 4)
+- **The collector fills an inbox, never the feed.** New items from watched sources land in `collected_items`; a person turns one into a signal (writing the factual claim) or dismisses it. The collector never creates or verifies signals, and no AI runs in the Worker.
+- **Four readers:** RSS/Atom, GitHub releases (REST API, optional free token), page change detection (stores only a fingerprint; the first visit is a baseline), and registry listings (the MCP Registry, and key maps like the elizaOS plugin index, where only new keys count; the first visit is a baseline).
+- **Polite and inside free limits:** an hourly Cron checks at most 5 due sources; conditional requests (ETag / Last-Modified); 10-second timeout; 25 items per run; a clear User-Agent pointing to this repo.
+- **Failures are visible, not fatal:** every run is logged; failures back off (interval doubled per failure, max 7 days) and a source pauses after 5 failures in a row. One broken source never stops the others; an unreadable response is logged as a failed run rather than stored.
+- **Every watched source records why Talo may read it** (`terms_note`); sources whose address or access isn't confirmed start paused.
+- **Suggested signal types are keyword hints only**; funding is never suggested.
+
 ## 2026-11-14: Admin curation API (Talo Data, step 3)
 - **Imports are all-or-nothing and checked first.** A `talo.registry.v1` file is checked in full (clashes with the database and within the file, signals for unknown companies, unknown categories, repeated events) before anything is written; any problem rejects the whole file with row-by-row reasons. `?dry_run=1` checks only.
 - **Editing verified facts reopens review.** Changing a verified company's name or description, or any field of a verified signal, sends it back to needs_review with a logged reason. Categories are Talo's own labels and don't reopen.
