@@ -1,6 +1,6 @@
-# Talo Data Engine and Discover: design (draft for approval)
+# Talo Data Engine and Discover: design
 
-Status: **draft**, from Dan's Product Direction Update v1.1 (November 2026). Nothing here is built until Dan approves. When approved, the product parts move into `PLAN.md`.
+Status: **approved by Dan, 2026-11-14.** From the Product Direction Update v1.1. `PLAN.md` holds the product direction and phases; this file holds the data design.
 
 **The main rule: no source, no verified claim.**
 

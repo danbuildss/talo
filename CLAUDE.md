@@ -1,6 +1,6 @@
 # Talo — how we work
 
-Talo (shown as **talo.**) is a partnership intelligence tool: it helps early-stage AI, Web3 and developer-infrastructure companies find the right partners, understand what each side gains, prepare a credible approach and track the relationship. Built by Somehow Internet. Owner: Dan. The repo is public.
+Talo (shown as **talo.**) is a partnership discovery and intelligence platform: a curated, source-backed database of companies and partnership signals, on which it helps early-stage AI, Web3 and developer-infrastructure companies find the right partners, understand what each side gains, prepare a credible approach and track the relationship. Main rule: no source, no verified claim. Built by Somehow Internet. Owner: Dan. The repo is public.
 
 ## Read first, every session
 1. This file: how we work.
