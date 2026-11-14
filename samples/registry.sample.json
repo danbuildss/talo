@@ -1,0 +1,41 @@
+{
+  "format": "talo.registry.v1",
+  "companies": [
+    {
+      "name": "Northwind Agents (fictional)",
+      "domain": "northwind.example",
+      "description": "Sample company: an SDK for building AI agents.",
+      "categories": ["ai-agents", "ai-dev-infra"],
+      "aliases": [{ "kind": "github_org", "value": "northwind-agents-example" }],
+      "sources": [
+        { "url": "https://northwind.example/about", "kind": "website", "title": "About Northwind (fictional)" }
+      ],
+      "is_sample": true
+    },
+    {
+      "name": "Lumen Ledger (fictional)",
+      "domain": "lumenledger.example",
+      "description": "Sample company: a wallet for onchain apps.",
+      "categories": ["wallets", "base"],
+      "is_sample": true
+    }
+  ],
+  "signals": [
+    {
+      "company_domain": "northwind.example",
+      "signal_type": "partner_program_launched",
+      "title": "Opened an integrations partner program (fictional)",
+      "factual_claim": "Northwind opened applications for tool and data integration partners.",
+      "source_excerpt": "Today we're opening the Northwind integrations program to tool builders.",
+      "opportunity_note": "Developer tools used by agent builders could apply to be listed.",
+      "event_date": "2026-11-10",
+      "primary_source": {
+        "url": "https://northwind.example/blog/integrations-program",
+        "kind": "announcement",
+        "title": "Introducing the Northwind integrations program (fictional)",
+        "published_at": "2026-11-10"
+      },
+      "is_sample": true
+    }
+  ]
+}

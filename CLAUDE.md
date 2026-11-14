@@ -43,5 +43,7 @@ Node 22+.
 - Run locally: `cp .dev.vars.example .dev.vars`, `npm run db:migrate:local`, then `npm run dev` (http://localhost:8787)
 - Regenerate research JSON Schemas after changing `shared/`: `npm run schema`
 - Check a research file: `npm run check:research -- file.json`
+- Add companies and signals (as needs_review): `npm run registry:import -- file.json [--dry-run]` (format: `schemas/registry-file.schema.json`, example: `samples/registry.sample.json`)
+- Data quality report: `npm run data:audit` (local by default; production: see `docs/DEPLOY.md`)
 - Deploy: see `docs/DEPLOY.md` (Dan's Cloudflare account); production URL: TBD
 - Technical decisions: `docs/DECISIONS.md`
