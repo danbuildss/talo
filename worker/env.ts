@@ -9,6 +9,8 @@ export interface Env {
   ACCESS_AUD?: string;
   /** Comma-separated admin emails allowed to use Talo. Set in the dashboard, never committed. */
   ADMIN_EMAILS?: string;
+  /** Optional free GitHub token (a Cloudflare secret) raising the API limit from 60 to 5,000 requests an hour. */
+  GITHUB_TOKEN?: string;
   /** Local development only: act as this admin without Access. Ignored unless ENVIRONMENT is "development" on localhost. */
   DEV_ADMIN_EMAIL?: string;
 }

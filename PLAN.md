@@ -261,6 +261,10 @@ Public read-only API (published records only, rate-limited), then screens: landi
 **Before going public:** run the free TALO register searches and get a lawyer's check on the name (see §11).
 **Done when:** someone can find a genuinely useful company or signal they didn't know about, on phone and desktop.
 
+### Phase 4b — Signal digest (right after Discover)
+A free daily or weekly digest of **new verified signals in the sectors a reader picks**, by email or a Telegram bot (free tiers only). Same rule as Discover: only verified records, each with its source and dates. This is what brings people back (learned from Frontrun's daily report).
+**Done when:** a reader can subscribe to one or more sectors and receives a digest with only verified, sourced signals; unsubscribing works in one click.
+
 ### Phase 5 — Talo Match
 A customer profile and objective, evaluated against the database with the existing fit formula and evidence confidence. Manual or Claude-assisted first. Results private to the workspace.
 
@@ -318,3 +322,4 @@ After pilots: cost per research run · hours per brief · verification rate · a
 ### Decided
 - 2026-11-12: Plan approved. Repo is public. Credit line "built by Somehow Internet". Back end first (3a → 3b → 3c). X warm paths parked in Phase 5. (Dan)
 - 2026-11-14: Direction update v1.1 approved: discovery and intelligence platform; Talo Data and Discover first; workspace features become Match, Outreach and Watch. (Dan)
+- 2026-11-14: Signal digest added right after Discover (Phase 4b). Name 'Talo' to be replaced; Claude to propose names. (Dan)

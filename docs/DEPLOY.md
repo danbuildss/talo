@@ -28,6 +28,13 @@ Dan does these steps in the Cloudflare dashboard. Claude never needs the account
 
 If sign-in isn't configured yet, the API answers "Sign-in is not configured yet" (503) and returns no data. It fails closed.
 
+## The collector
+
+- The hourly schedule is in `wrangler.jsonc` and starts when the Worker is deployed.
+- Load the approved sources once: `npm run sources:seed` (with `TALO_URL` and `TALO_ACCESS_TOKEN` set as below). Sources marked "to confirm" start paused.
+- Optional: a free GitHub token (no special permissions needed for public repositories) raises GitHub's limit from 60 to 5,000 requests an hour. Add it as a Secret named `GITHUB_TOKEN` in the Worker's settings. Never paste it in chat or commit it.
+- Check health at `/api/admin/watched-sources` and `/api/admin/runs`; new finds wait at `/api/admin/inbox`.
+
 ## Curating data in production
 
 Reviews happen through the admin API (screens come later). From a computer with the repo:
