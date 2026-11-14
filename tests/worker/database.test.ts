@@ -88,7 +88,18 @@ describe("workspace isolation", () => {
 
   it("every private table has a workspace_id column; shared tables are listed on purpose", async () => {
     // Shared registry tables (docs/DATA-ENGINE.md): no workspace_id, admin-written, public only when verified.
-    const SHARED = ["workspaces", "companies", "company_aliases", "categories", "company_categories", "sources"];
+    const SHARED = [
+      "workspaces",
+      "companies",
+      "company_aliases",
+      "categories",
+      "company_categories",
+      "sources",
+      "signal_types",
+      "signal_events",
+      "signal_sources",
+      "verification_reviews",
+    ];
     const { results } = await env.DB.prepare(
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' AND name != 'd1_migrations'",
     ).all<{ name: string }>();
