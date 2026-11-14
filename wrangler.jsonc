@@ -14,8 +14,8 @@
     {
       "binding": "DB",
       "database_name": "talo",
-      // Replaced with the real ID once Dan creates the D1 database (Phase 3a, access step).
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      // Dan's D1 database (created 2026-11-14). The ID isn't secret.
+      "database_id": "78b5bc83-abb4-44e4-9180-28b08fce12e8",
       "migrations_dir": "migrations"
     }
   ],
