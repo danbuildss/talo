@@ -19,7 +19,11 @@
       "migrations_dir": "migrations"
     }
   ],
+  // Plain settings live here, because settings added only in the dashboard are reset on each deploy.
+  // Secrets (ADMIN_TOKEN, XAI_API_KEY, GITHUB_TOKEN) are NEVER written here: this repo is public.
+  // Add them in the dashboard as type "Secret"; secrets survive deploys.
   "vars": {
-    "ENVIRONMENT": "production"
+    "ENVIRONMENT": "production",
+    "ADMIN_NAME": "dan"
   }
 }

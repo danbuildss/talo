@@ -11,8 +11,9 @@ Dan does these steps in the Cloudflare dashboard. Claude never needs the account
    - Deploy command: `npm run deploy` (creates or updates the database tables, then deploys)
 4. **Admin key (the login, Option B, no card needed).** On a computer with the repo: `npm run admin:key`. It prints a long random key once.
    - Cloudflare: Workers & Pages → rightroom → Settings → Variables and Secrets → **Add → Secret**, name `ADMIN_TOKEN`, value = the key.
-   - Optional plain variable `ADMIN_NAME` = your name (recorded on reviews), e.g. `dan`.
-   - Keep the key in a password manager. Never paste it in chat or commit it. If it leaks, make a new one and replace the secret.
+   - The type must be **Secret** (shown as hidden dots). If Cloudflare shows the value or suggests adding it to `wrangler.jsonc`, it was saved as Text: delete it, make a new key and add it again as Secret. Never put a secret in `wrangler.jsonc` (the repo is public).
+   - `ADMIN_NAME` (recorded on reviews) is set in `wrangler.jsonc`, because plain settings added only in the dashboard are reset on each deploy.
+   - Keep the key in a password manager. Never paste it in chat or commit it, and don't screenshot its value. If it leaks, make a new one and replace the secret.
 5. **Tables.** If the deploy command above didn't create them: `npx wrangler d1 migrations apply DB --remote` from a computer with the repo.
 
 Cloudflare Access (Zero Trust) can replace or sit alongside the admin key later; it asks for a card on file even on its free plan. The Worker supports both.
