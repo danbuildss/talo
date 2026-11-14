@@ -2,6 +2,13 @@
 
 Short records of technical decisions, newest first. Product decisions live in `PLAN.md`.
 
+## 2026-11-14: Company registry (Talo Data, step 1)
+- **Duplicates are stopped by aliases.** Every company has normalized aliases (name, domain, GitHub org, X handle) with `UNIQUE(kind, value)`. A new company that shares any alias is refused, naming the existing company. Names ignore case, punctuation and legal suffixes (Inc, Ltd…) but keep meaningful words (Labs, AI).
+- **Near-duplicates are flagged, not blocked:** the same domain name on different endings (acme.ai / acme.com) or names one letter apart go to a person to decide; `mergeCompanies` combines them.
+- **One URL, one source:** URLs are normalized (no www, fragment, tracking parameters or trailing slash; sorted query) before storing.
+- **Shared tables are listed explicitly** in the isolation test, so every new table has to be classed as shared or private on purpose.
+- New companies always start as `needs_review`; verification arrives with signals in the next step.
+
 ## 2026-11-12: Back-end foundation (Phase 3a)
 - **One Cloudflare Worker** with Hono for routing and Zod for validation; D1 for data. Free tier.
 - **Login = Cloudflare Access + a server-side check.** The Worker verifies the Access token (signature, issuer, audience, expiry) and an email allowlist on every `/api` request, and fails closed if not configured. A local-only shortcut exists for development (localhost + `ENVIRONMENT=development`).

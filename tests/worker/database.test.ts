@@ -86,16 +86,19 @@ describe("workspace isolation", () => {
     expect(await getCandidate(env.DB, a.id, secretId)).not.toBeNull();
   });
 
-  it("every table except workspaces has a workspace_id column", async () => {
+  it("every private table has a workspace_id column; shared tables are listed on purpose", async () => {
+    // Shared registry tables (docs/DATA-ENGINE.md): no workspace_id, admin-written, public only when verified.
+    const SHARED = ["workspaces", "companies", "company_aliases", "categories", "company_categories", "sources"];
     const { results } = await env.DB.prepare(
-      "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' AND name NOT IN ('workspaces', 'd1_migrations')",
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' AND name != 'd1_migrations'",
     ).all<{ name: string }>();
-    expect(results.length).toBeGreaterThanOrEqual(8);
-    for (const { name } of results) {
+    const privateTables = results.map((r) => r.name).filter((name) => !SHARED.includes(name));
+    expect(privateTables.length).toBeGreaterThanOrEqual(8);
+    for (const name of privateTables) {
       const cols = await env.DB.prepare(`PRAGMA table_info(${name})`).all<{ name: string }>();
       expect(
         cols.results.map((c) => c.name),
-        name,
+        `${name} is private and needs workspace_id`,
       ).toContain("workspace_id");
     }
   });
