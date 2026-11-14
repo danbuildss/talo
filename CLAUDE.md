@@ -44,6 +44,7 @@ Node 22+.
 - Regenerate research JSON Schemas after changing `shared/`: `npm run schema`
 - Check a research file: `npm run check:research -- file.json`
 - Add companies and signals (as needs_review): `npm run registry:import -- file.json [--dry-run]` (format: `schemas/registry-file.schema.json`, example: `samples/registry.sample.json`)
+- Review the queue (approve/reject, opens sources): `npm run review`
 - Data quality report: `npm run data:audit` (local by default; production: see `docs/DEPLOY.md`)
 - Load the approved watched sources: `npm run sources:seed` (list: `seeds/watched-sources.json`). Test the hourly collector locally with `npx wrangler dev --test-scheduled` and `curl "localhost:8787/__scheduled"`
 - Deploy: see `docs/DEPLOY.md` (Dan's Cloudflare account); production URL: TBD

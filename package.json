@@ -19,7 +19,8 @@
     "data:audit": "tsx scripts/data-audit.ts",
     "registry:import": "tsx scripts/registry-import.ts",
     "sources:seed": "tsx scripts/sources-seed.ts",
-    "admin:key": "tsx scripts/admin-key.ts"
+    "admin:key": "tsx scripts/admin-key.ts",
+    "review": "tsx scripts/review.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.7",

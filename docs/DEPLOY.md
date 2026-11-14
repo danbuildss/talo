@@ -52,6 +52,7 @@ Reviews happen through the admin API (screens come later). From a computer with 
 1. `export TALO_URL=https://rightroom.<your-subdomain>.workers.dev`
 2. `export TALO_ADMIN_TOKEN=<your admin key>` (from your password manager)
 3. `npm run registry:import -- file.json --dry-run`, then without `--dry-run`; `npm run data:audit`; `npm run sources:seed`.
+4. **Review the queue:** `npm run review`. It shows one company or signal at a time and opens its source in your browser. Press **a** to approve (you'll say which page you checked; for signals, paste the page's exact sentence), **r** to reject with a reason, **s** to skip, **q** to stop. The server still enforces every rule.
 
 Never paste the key into chat or commit it.
 
